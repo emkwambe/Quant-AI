@@ -1,500 +1,553 @@
-# MATHATHLON Feasibility Review
+# MATHATHLON - Build-Ready Feasibility Specification
 
-**Reviewer:** Technical Architecture & Business Strategy Analysis
-**Date:** December 2024
-**Status:** Comprehensive Review
-
----
-
-## Table of Contents
-1. [Executive Assessment](#executive-assessment)
-2. [Technical Feasibility Analysis](#technical-feasibility-analysis)
-3. [Business Model Evaluation](#business-model-evaluation)
-4. [Math Content Strategy Assessment](#math-content-strategy-assessment)
-5. [Risk Matrix & Mitigations](#risk-matrix--mitigations)
-6. [Recommendations](#recommendations)
+**Version:** 2.0 (Pragmatic Edition)
+**Status:** Ready for Development
 
 ---
 
-## Executive Assessment
+## Executive Summary
 
-### Overall Verdict: **FEASIBLE WITH MODIFICATIONS**
+**Verdict: FEASIBLE - READY TO BUILD**
 
-| Domain | Rating | Confidence |
-|--------|--------|------------|
-| Technical Feasibility | 🟡 **Moderate** | 75% |
-| Business Model | 🟢 **Strong** | 85% |
-| Math Content | 🟢 **Strong** | 90% |
+This document strips the Mathathlon concept to its buildable core, removing dependencies on perfect conditions and focusing on what works reliably in real school environments.
 
-**Key Finding:** The core vision is achievable, but the "millisecond synchronization" requirement is over-engineered for the educational use case. Recommended pivot to "eventual consistency" model that feels real-time but tolerates 200-500ms latency.
+### Design Principles Applied
+
+1. **Assume bad networks** - Design for 500ms+ latency, not milliseconds
+2. **Assume old hardware** - Target 2015-era Chromebooks
+3. **Assume distracted users** - Teachers have 30 seconds to set up
+4. **Assume zero IT support** - Must work without firewall changes
+5. **Start small, prove value** - MVP serves one classroom before scaling globally
 
 ---
 
-## Technical Feasibility Analysis
+## Part 1: Technical Specification (Simplified)
 
-### 1. Real-Time Racing Engine
-
-#### 1.1 Heartbeat Synchronization - **CRITICAL CONCERN**
-
-**PRD Claim:**
-> "The system must sync all players to the millisecond using a central server clock."
-
-**Reality Check:** ❌ **Over-Specified**
-
-| Factor | Challenge | Impact |
-|--------|-----------|--------|
-| School Network Latency | 50-500ms typical, spikes to 2000ms | High |
-| Geographic Distribution | Cross-timezone sync impossible at ms level | High |
-| Device Variability | Chromebook JS execution varies widely | Medium |
-
-**Recommendation:** Implement "perceptual synchronization" instead:
-```
-┌─────────────────────────────────────────────────────────┐
-│  REVISED SYNC MODEL                                      │
-├─────────────────────────────────────────────────────────┤
-│  • Server sends "Heat Start" event with timestamp       │
-│  • Clients calculate local offset during lobby phase    │
-│  • Questions revealed simultaneously (±200ms tolerance) │
-│  • Scoring based on SERVER receipt time, not client     │
-│  • Visual countdown provides "sync illusion"            │
-└─────────────────────────────────────────────────────────┘
-```
-
-#### 1.2 Heat Logic - **FEASIBLE**
-
-Auto-starting heats at 1-5 minute intervals is straightforward:
-
-```javascript
-// Conceptual Heat Scheduler
-const HEAT_INTERVAL_MS = 60000; // 1 minute
-
-class HeatScheduler {
-  constructor() {
-    this.nextHeatTime = this.calculateNextHeat();
-  }
-
-  calculateNextHeat() {
-    const now = Date.now();
-    return Math.ceil(now / HEAT_INTERVAL_MS) * HEAT_INTERVAL_MS;
-  }
-
-  getTimeToNextHeat() {
-    return this.nextHeatTime - Date.now();
-  }
-}
-```
-
-**Verdict:** ✅ Achievable with standard Node.js scheduling
-
-#### 1.3 Concurrency Requirements
-
-**PRD Target:** 10,000+ concurrent students
-
-**Stack Assessment:**
-
-| Component | PRD Choice | Evaluation |
-|-----------|------------|------------|
-| Runtime | Node.js | ✅ Appropriate - event-loop ideal for I/O-bound WebSocket traffic |
-| Real-time | Socket.io | 🟡 Works but consider alternatives |
-| Session Store | Redis | ✅ Excellent choice for ephemeral session data |
-
-**Socket.io Concerns:**
-- Heavy library (~100KB client-side)
-- Fallback mechanisms add complexity
-- Consider: **ws** (native WebSocket) + manual reconnection for lighter footprint
-
-**Scaling Architecture:**
+### 1.1 Architecture Overview
 
 ```
-                    ┌─────────────────┐
-                    │   Load Balancer │
-                    │   (Sticky Session)│
-                    └────────┬────────┘
-                             │
-         ┌───────────────────┼───────────────────┐
-         │                   │                   │
-    ┌────▼────┐        ┌─────▼────┐        ┌─────▼────┐
-    │ Node #1 │        │ Node #2  │        │ Node #3  │
-    │ (Heat A)│        │ (Heat B) │        │ (Heat C) │
-    └────┬────┘        └────┬─────┘        └────┬─────┘
-         │                  │                   │
-         └──────────────────┼───────────────────┘
-                            │
-                    ┌───────▼───────┐
-                    │  Redis Cluster │
-                    │  (Pub/Sub +    │
-                    │   Session)     │
-                    └────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  SIMPLIFIED ARCHITECTURE (Single Server Start)              │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   Browser ◄──── HTTPS/WSS ────► Single Node.js Server      │
+│     (Student/Teacher)                    │                  │
+│                                          ▼                  │
+│                                    PostgreSQL               │
+│                                   (or SQLite for MVP)       │
+│                                                             │
+│   Scale later: Add Redis + multiple nodes when needed       │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-**Capacity Planning:**
+**Why this works:**
+- Single server handles 500-1000 concurrent users easily
+- No distributed system complexity until proven needed
+- PostgreSQL handles both sessions and persistent data
+- Upgrade path clear when scale requires it
 
-| Metric | Calculation | Result |
-|--------|-------------|--------|
-| Messages/sec at peak | 10,000 users × 1 msg/3sec | ~3,333 msg/sec |
-| Memory per connection | ~10KB (Socket.io overhead) | ~100MB for 10K |
-| Redis operations | 10K × 5 ops/heat | 50K ops/heat |
+### 1.2 Real-Time Strategy (Practical)
 
-**Verdict:** ✅ Achievable with 3-5 Node instances + Redis cluster
+**Original PRD:** "Sync all players to the millisecond"
+**Reality:** Impossible and unnecessary
 
-### 2. Frontend Considerations
+**Pragmatic Approach: Server-Authoritative Rounds**
 
-#### 2.1 Platform Choice - **FEASIBLE**
+```
+┌─────────────────────────────────────────────────────────────┐
+│  HOW "LIVE" ACTUALLY WORKS                                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. Teacher clicks "Start Heat"                             │
+│  2. Server creates heat with START_TIME = now + 5 seconds   │
+│  3. All clients receive heat ID and START_TIME              │
+│  4. Each client shows countdown locally                     │
+│  5. At START_TIME, clients request first question           │
+│  6. Server tracks: (heat_id, user_id, question_id, time)    │
+│  7. Scoring = server receipt time - heat start time         │
+│                                                             │
+│  Result: Feels synchronized, tolerates 500ms+ latency       │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
-| PRD Requirement | Evaluation |
-|-----------------|------------|
-| Mobile-first responsive | ✅ Standard practice |
-| 1080p projector optimization | ✅ Add specific breakpoint |
-| Sub-3-second load times | 🟡 Requires aggressive optimization |
+**Key simplification:** No real-time leaderboard during competition. Show results AFTER heat ends. This eliminates:
+- Constant WebSocket broadcasts
+- Race conditions
+- Cheating via network inspection
+- Complexity of live position updates
+
+### 1.3 Heat Mechanics (Simplified)
+
+**Remove:** Global heats starting every 60 seconds
+**Replace:** Teacher-initiated classroom heats
+
+| Feature | Original | Simplified |
+|---------|----------|------------|
+| Heat trigger | Auto every 60s globally | Teacher clicks "Start" |
+| Participants | Global strangers | Single classroom |
+| Lobby | Global map visualization | Simple "X students ready" |
+| Duration | 3-5 minutes | 2 minutes fixed |
+| Questions | Dynamic difficulty mid-heat | Fixed difficulty per heat |
+
+**Why:**
+- Teacher control = teacher adoption
+- Single classroom = no cross-network sync issues
+- Fixed duration = predictable lesson planning
+- Add global heats in V2 after proving single-classroom value
+
+### 1.4 Frontend Specification
+
+**Target Device:** 2015 Chromebook (2GB RAM, 1366x768, spotty WiFi)
+
+**Technology Choice:**
+
+| Option | Decision | Rationale |
+|--------|----------|-----------|
+| Framework | **Vanilla JS + Preact** | Smallest bundle, fastest load |
+| Styling | CSS (no framework) | Zero overhead |
+| Build | Vite | Fast dev, optimized production |
+| State | URL params + localStorage | No complex state management |
 
 **Performance Budget:**
 
 ```
-┌────────────────────────────────────────────────┐
-│  TARGET LOAD BUDGET (Sub-3-Second)             │
-├────────────────────────────────────────────────┤
-│  HTML + Critical CSS:     50KB (gzipped)       │
-│  JavaScript Bundle:       150KB (gzipped)      │
-│  Initial API Response:    10KB                 │
-│  Fonts:                   40KB (subset)        │
-│  ─────────────────────────────────────────     │
-│  TOTAL:                   ~250KB               │
-│  @ 1Mbps (slow school):   ~2 seconds           │
-└────────────────────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│  HARD LIMITS                            │
+├─────────────────────────────────────────┤
+│  Total JS (gzipped):     < 50KB         │
+│  Total CSS (gzipped):    < 10KB         │
+│  Time to interactive:    < 2 seconds    │
+│  Memory usage:           < 50MB         │
+│  Works offline:          Yes (cached)   │
+└─────────────────────────────────────────┘
 ```
 
-**3D Podium Concern:**
-> "Live Podium: 3D rendered avatars"
+**UI Simplifications:**
 
-❌ **NOT RECOMMENDED for V1**
+| Original | Simplified |
+|----------|------------|
+| 3D podium with avatars | CSS podium, initials only |
+| Global map of participants | "32 students in your class" |
+| Complex animations | CSS transitions only |
+| Live leaderboard updates | Results screen after heat |
 
-| Issue | Impact |
-|-------|--------|
-| WebGL support on old Chromebooks | 30% failure rate |
-| GPU memory on tablets | Crashes likely |
-| Development complexity | 3x time estimate |
+### 1.5 Data Model (Minimal)
 
-**Alternative:** CSS 3D transforms for "pseudo-3D" podium effect:
-```css
-.podium-platform {
-  transform: perspective(500px) rotateX(15deg);
-  /* Achieves depth illusion without WebGL */
-}
+```sql
+-- Core tables only - extend later as needed
+
+teachers (
+  id, email, password_hash, school_name, created_at
+)
+
+classrooms (
+  id, teacher_id, name, join_code, grade_level
+)
+
+students (
+  id, classroom_id, display_name, created_at
+  -- NO email, NO PII beyond display name
+)
+
+heats (
+  id, classroom_id, started_at, ended_at,
+  difficulty_level, question_count
+)
+
+responses (
+  id, heat_id, student_id, question_template_id,
+  question_params, student_answer, correct_answer,
+  is_correct, response_time_ms, answered_at
+)
 ```
 
-#### 2.2 Framework Recommendation
+**Privacy by design:**
+- Students identified by display name only (teacher assigns)
+- No student emails, no parent consent needed
+- Teacher owns all student data
+- COPPA-compliant by architecture
 
-| Option | Pros | Cons | Recommendation |
-|--------|------|------|----------------|
-| React | Large ecosystem, hiring pool | Bundle size, complexity | ✅ Primary choice |
-| Vue | Lighter, easier learning | Smaller ecosystem | ✅ Strong alternative |
-| Svelte | Smallest bundle, fast | Hiring difficulty | 🟡 Consider for V2 |
-| Vanilla JS | Maximum control | Maintenance nightmare | ❌ Not recommended |
+### 1.6 Offline/Resilience Strategy
+
+**Problem:** School WiFi drops mid-heat
+**Solution:** Graceful degradation, not prevention
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  CONNECTION LOSS HANDLING                                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. Questions pre-loaded at heat start (all 20 questions)   │
+│  2. Answers stored in localStorage as submitted             │
+│  3. If connection lost:                                     │
+│     - Student continues answering locally                   │
+│     - UI shows "Answers will sync when connected"           │
+│  4. On reconnect: batch submit all pending answers          │
+│  5. Server accepts late submissions with original timestamp │
+│                                                             │
+│  Result: Network issues don't ruin the experience           │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## Business Model Evaluation
+## Part 2: Business Model (Proven Patterns)
 
-### 1. Pricing Tier Analysis
+### 2.1 Pricing Strategy
 
-#### Current Structure Assessment:
-
-| Tier | PRD Price | Market Comparison | Verdict |
-|------|-----------|-------------------|---------|
-| Free | $0 | Industry standard | ✅ Essential for virality |
-| Pro Classroom | Not specified | $5-15/teacher/mo typical | 🟡 Needs pricing |
-| District Gold | Not specified | $2-5/student/year typical | 🟡 Needs pricing |
-
-#### Recommended Pricing Strategy:
+**Model:** Freemium with clear upgrade triggers
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  SUGGESTED PRICING MODEL                                        │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  FREE TIER (Teacher-Led)                                        │
-│  └─ $0/forever                                                  │
-│  └─ 5-min heats, 35 students, basic analytics                   │
-│  └─ PURPOSE: Viral acquisition, teacher love                    │
-│                                                                 │
-│  PRO CLASSROOM                                                  │
-│  └─ $8/month OR $60/year (per teacher)                          │
-│  └─ Unlimited heats, all leagues, historical data               │
-│  └─ Private class-vs-class mode                                 │
-│  └─ PURPOSE: Teacher upgrade, credit card transactions          │
-│                                                                 │
-│  SCHOOL UNLIMITED                                               │
-│  └─ $3/student/year (minimum 100 students)                      │
-│  └─ All Pro features + admin dashboard                          │
-│  └─ LMS integration (Google Classroom, Clever)                  │
-│  └─ PURPOSE: Scale within schools                               │
-│                                                                 │
-│  DISTRICT ENTERPRISE                                            │
-│  └─ $2/student/year (1,000+ students)                           │
-│  └─ Custom tournaments, API access, dedicated support           │
-│  └─ ROI reporting, standards alignment reports                  │
-│  └─ PURPOSE: Large contract revenue                             │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  TIER STRUCTURE                                             │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  FREE FOREVER                                               │
+│  ├─ 1 classroom, up to 35 students                          │
+│  ├─ 3 heats per day                                         │
+│  ├─ Grades 3-5 content only                                 │
+│  ├─ Basic results (who got what right)                      │
+│  └─ PURPOSE: Let teachers fall in love                      │
+│                                                             │
+│  PRO - $5/month or $40/year                                 │
+│  ├─ Unlimited classrooms and heats                          │
+│  ├─ All grade levels (K-8)                                  │
+│  ├─ Historical tracking (30-day trends)                     │
+│  ├─ Export results to CSV                                   │
+│  ├─ Class vs Class mode (within school)                     │
+│  └─ PURPOSE: Individual teacher purchase                    │
+│                                                             │
+│  SCHOOL - $200/year flat                                    │
+│  ├─ All Pro features                                        │
+│  ├─ Up to 50 teachers                                       │
+│  ├─ Admin dashboard                                         │
+│  ├─ Google Classroom roster sync                            │
+│  └─ PURPOSE: Principal/department purchase                  │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### 2. Unit Economics Projection
+**Why these prices:**
+- $5/mo = impulse purchase, no approval needed
+- $40/yr = cheaper than a textbook
+- $200/yr school = one PD budget line item
+
+### 2.2 Conversion Triggers
+
+| Free Limit | Upgrade Trigger | Expected Conversion |
+|------------|-----------------|---------------------|
+| 3 heats/day | "You've used all 3 heats! Upgrade for unlimited" | 5-8% |
+| Grades 3-5 only | "Your 6th graders can play too with Pro" | 3-5% |
+| 30-day data | "See Sarah's progress over time with Pro" | 2-3% |
+| Single classroom | "Add your other classes with Pro" | 4-6% |
+
+### 2.3 Unit Economics (Conservative)
 
 **Assumptions:**
-- CAC (Teacher): $15 (content marketing + word of mouth)
-- Free-to-Paid conversion: 5%
-- Teacher-to-School upgrade: 10% of paid teachers
-- Annual churn: 20%
+- CAC: $0 (organic/word-of-mouth only in Y1)
+- Free-to-Pro conversion: 4%
+- Monthly churn: 5%
+- No school sales in Y1 (focus on proving product)
 
-| Metric | Year 1 | Year 2 | Year 3 |
-|--------|--------|--------|--------|
-| Free Teachers | 10,000 | 50,000 | 150,000 |
-| Paid Teachers | 500 | 2,500 | 7,500 |
-| School Contracts | 50 | 250 | 750 |
-| **ARR** | $156K | $780K | $2.3M |
+| Metric | Month 6 | Month 12 | Month 18 |
+|--------|---------|----------|----------|
+| Free teachers | 500 | 2,000 | 6,000 |
+| Pro subscribers | 20 | 80 | 240 |
+| MRR | $100 | $400 | $1,200 |
+| **ARR** | $1,200 | $4,800 | $14,400 |
 
-### 3. Competitive Landscape
+**Break-even hosting:** ~50 Pro subscribers ($250/mo) covers infrastructure
 
-| Competitor | Positioning | Mathathlon Differentiation |
-|------------|-------------|---------------------------|
-| **Kahoot!** | General quiz games | Math-specific depth, curriculum alignment |
-| **Prodigy Math** | RPG-based, solo play | Live competition, classroom focus |
-| **IXL** | Drill-based practice | Gamification, social elements |
-| **Zearn** | Curriculum-heavy | Lightweight, engagement-first |
-| **Times Tables Rock Stars** | Multiplication only | Full K-8 math spectrum |
+### 2.4 Go-to-Market (Zero Budget)
 
-**Unique Value Proposition:**
-> "The only platform where math class feels like watching the Olympics"
+**Phase 1: Prove with 10 teachers (Month 1-2)**
+- Personal outreach to teacher friends/connections
+- Goal: Do they use it more than once?
 
-**Competitive Moat:**
-1. Network effects (more schools = more exciting global heats)
-2. Real-time sync technology (hard to replicate)
-3. Teacher community + content library
+**Phase 2: Organic growth (Month 3-6)**
+- Teachers share join codes → students tell other teachers
+- Post in r/teachers, teacher Facebook groups
+- Goal: 500 free teachers
 
-### 4. Go-to-Market Strategy Gaps
+**Phase 3: Content marketing (Month 6-12)**
+- Blog: "5-minute math warm-up activities"
+- YouTube: Classroom footage of Mathathlon in action
+- Goal: 2,000 free teachers, first Pro conversions
 
-**Missing from PRD:**
-
-| Element | Importance | Recommendation |
-|---------|------------|----------------|
-| Launch market | High | Start with 3 US states (CA, TX, NY) |
-| Teacher acquisition | High | EdTech conference presence, teacher influencer program |
-| Content partnerships | Medium | Partner with curriculum providers for question banks |
-| Success metrics timeline | Medium | Define "what success looks like" at 6/12/24 months |
+**What we're NOT doing:**
+- Paid ads (unproven product-market fit)
+- Sales team (premature)
+- Conference booths (expensive, low ROI early)
+- District sales (long cycles, need case studies first)
 
 ---
 
-## Math Content Strategy Assessment
+## Part 3: Math Content (MVP Scope)
 
-### 1. Procedural Generation - **EXCELLENT APPROACH**
+### 3.1 Content Boundaries
 
-**PRD Claim:**
-> "Template-Based: Instead of static images, use procedural generation to ensure infinite variety"
+**V1 Focus:** Grades 3-5 arithmetic fluency only
 
-✅ **Strongly Validated**
+| Include | Exclude (for now) |
+|---------|-------------------|
+| Addition (2-3 digit) | Geometry |
+| Subtraction (2-3 digit) | Word problems |
+| Multiplication (facts to 12) | Fractions |
+| Division (facts to 12) | Decimals |
+| Mixed operations | Algebra |
 
-#### Template System Design:
+**Why narrow:**
+- Grades 3-5 = largest addressable market
+- Arithmetic fluency = clear learning outcome
+- Template-based = infinite questions from few templates
+- Expand after proving engagement
+
+### 3.2 Question Template System
+
+**Total templates needed for V1:** 25
 
 ```javascript
-// Example: Addition template for Grade 2
-const additionTemplate = {
-  id: "g2-add-2digit",
-  grade: 2,
-  standard: "CCSS.MATH.CONTENT.2.NBT.B.5",
-  difficulty: 3, // 1-10 scale
+// Example template structure
+const templates = {
+  "add-2digit": {
+    id: "add-2digit",
+    grade: 3,
+    skill: "addition",
+    difficulty: 2, // 1-5 scale
 
-  generate() {
-    const a = randomInt(10, 50);
-    const b = randomInt(10, 99 - a); // Ensure no carrying over 99
-    return {
-      question: `${a} + ${b} = ?`,
-      answer: a + b,
-      distractors: [a + b + 1, a + b - 1, a + b + 10]
-    };
+    generate: () => {
+      const a = randInt(10, 99);
+      const b = randInt(10, 99 - a); // Keep sum under 100 for easier
+      return {
+        display: `${a} + ${b} = ?`,
+        answer: a + b,
+        inputType: "number"
+      };
+    }
+  },
+
+  "mult-facts": {
+    id: "mult-facts",
+    grade: 4,
+    skill: "multiplication",
+    difficulty: 3,
+
+    generate: () => {
+      const a = randInt(2, 12);
+      const b = randInt(2, 12);
+      return {
+        display: `${a} × ${b} = ?`,
+        answer: a * b,
+        inputType: "number"
+      };
+    }
   }
+  // ... 23 more templates
 };
 ```
 
-**Benefits:**
-- Zero question memorization/cheating
-- Infinite practice with controlled difficulty
-- Easy A/B testing of difficulty parameters
+### 3.3 Template Inventory (V1)
 
-### 2. Dynamic Level Equalizer (DLE) - **NEEDS REFINEMENT**
+| Skill | Templates | Difficulty Range |
+|-------|-----------|------------------|
+| Addition (no carry) | 2 | 1-2 |
+| Addition (with carry) | 2 | 2-3 |
+| Subtraction (no borrow) | 2 | 1-2 |
+| Subtraction (with borrow) | 2 | 2-3 |
+| Multiplication (single digit) | 3 | 2-3 |
+| Multiplication (by 10, 100) | 2 | 2-3 |
+| Division (facts) | 3 | 2-4 |
+| Division (with remainder) | 2 | 3-4 |
+| Mixed operations | 4 | 3-5 |
+| Missing number (a + ? = c) | 3 | 3-4 |
+| **Total** | **25** | 1-5 |
 
-**PRD Description:**
-> "As a student hits a 'win streak,' the system pulls from a higher 'Mass' pool"
+### 3.4 Difficulty Selection (Simple)
 
-**Concern:** Binary streak-based difficulty can cause:
-- Anxiety spikes when difficulty jumps
-- Gaming behavior (intentional wrong answers)
-- Unfair racing conditions
-
-**Recommended Algorithm: Elo-Inspired Adaptive Difficulty**
+**Remove:** Complex Elo-based adaptive algorithm
+**Replace:** Teacher selects difficulty before heat
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  ADAPTIVE DIFFICULTY ALGORITHM                                  │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Each student has a "Skill Rating" (SR) initialized at 1000    │
-│                                                                 │
-│  After each question:                                           │
-│  ├─ Expected performance = f(SR, Question Difficulty)           │
-│  ├─ If correct: SR += K × (1 - expected)                        │
-│  └─ If wrong: SR -= K × expected                                │
-│                                                                 │
-│  Next question selected where:                                  │
-│  └─ P(correct) ≈ 70% (optimal learning zone)                    │
-│                                                                 │
-│  K-factor varies by context:                                    │
-│  ├─ New students: K = 40 (fast calibration)                     │
-│  ├─ Established: K = 20 (stable progression)                    │
-│  └─ Competition mode: K = 10 (minimize variance)                │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  DIFFICULTY LEVELS (Teacher Chooses)                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  LEVEL 1: "Warm Up"                                         │
+│  └─ Templates with difficulty 1-2                           │
+│  └─ Recommended: Beginning of unit, struggling students     │
+│                                                             │
+│  LEVEL 2: "Practice"                                        │
+│  └─ Templates with difficulty 2-3                           │
+│  └─ Recommended: Daily practice, mixed ability              │
+│                                                             │
+│  LEVEL 3: "Challenge"                                       │
+│  └─ Templates with difficulty 3-5                           │
+│  └─ Recommended: Review, advanced students                  │
+│                                                             │
+│  Teacher knows their class. Let them choose.                │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### 3. Curriculum Alignment - **CRITICAL FOR SALES**
+**Why no adaptive:**
+- Adaptive algorithms need data to calibrate (cold start problem)
+- Teachers already differentiate by choosing when to use each level
+- Simpler = fewer bugs = faster to build
+- Add adaptive in V2 with 6 months of response data
 
-**Standards Coverage Required:**
+### 3.5 Standards Alignment (Lightweight)
 
-| Standard | Grades | Priority |
-|----------|--------|----------|
-| Common Core (CCSS) | K-8 | 🔴 **Must Have** |
-| IB Primary Years | K-5 | 🟡 High |
-| State-specific (TX TEKS, CA) | K-8 | 🟡 High |
-| UK National Curriculum | K-6 | 🟢 Medium |
-| International (Singapore Math) | K-6 | 🟢 Medium |
+**V1 Approach:** Tag templates with CCSS codes, display on teacher dashboard
 
-**Content Volume Estimate:**
+```
+Template: mult-facts
+CCSS: 3.OA.C.7 - Fluently multiply within 100
+```
 
-| Category | Templates Needed | Questions Possible |
-|----------|------------------|-------------------|
-| Number Sense (K-2) | 50 | Infinite |
-| Operations (K-8) | 100 | Infinite |
-| Fractions/Decimals (3-8) | 75 | Infinite |
-| Geometry (K-8) | 60 | Infinite |
-| Word Problems (2-8) | 80 | Infinite |
-| **Total** | **~365 templates** | **Unlimited** |
-
-**Development Timeline:** ~3-4 months for core template library
-
-### 4. Pedagogical Considerations
-
-#### 4.1 Math Anxiety Mitigation - **WELL ADDRESSED**
-
-PRD mentions class-vs-class and personal bests. Additional recommendations:
-
-| Feature | Purpose | Implementation |
-|---------|---------|----------------|
-| "Improvement Medals" | Reward growth, not just winning | Track 7-day rolling average |
-| Anonymous Mode | Reduce public shame | Teacher-toggleable setting |
-| Celebration Diversity | Not just speed-focused | Accuracy awards, streak badges |
-| Warm-up Phase | Reduce cold-start anxiety | 30-sec non-scored practice |
-
-#### 4.2 Learning Efficacy Validation
-
-**Recommendation:** Partner with education researchers for:
-- Pre/post fluency assessments
-- Comparison studies vs. traditional practice
-- Long-term retention measurement
-
-**Suggested Metric:**
-> "Students using Mathathlon 3x/week show 25% faster math fact recall vs. control group"
+**What we're NOT doing in V1:**
+- Formal curriculum mapping documents
+- State-by-state standard crosswalks
+- Scope and sequence recommendations
+- These come later when selling to districts
 
 ---
 
-## Risk Matrix & Mitigations
+## Part 4: Implementation Roadmap
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| **Network reliability in schools** | High | High | Offline-capable question cache, graceful degradation |
-| **Teacher adoption resistance** | Medium | High | 5-minute onboarding, immediate classroom value |
-| **Scalability bottlenecks** | Medium | High | Load testing at 50K concurrent before launch |
-| **Content quality issues** | Low | High | Math educator review board, error reporting system |
-| **Competitive response (Kahoot)** | Medium | Medium | Focus on math-specific depth, don't generalize |
-| **Student cheating** | Medium | Low | Procedural generation, time-based scoring |
-| **COPPA compliance** | Low | Critical | No PII collection from students, teacher-gated access |
-| **Firewall/IT blocking** | Medium | Medium | Standard ports only, IT admin documentation |
+### 4.1 MVP Feature Set (8 Weeks)
 
----
+**Week 1-2: Core Infrastructure**
+- [ ] Teacher signup/login (email + password)
+- [ ] Create classroom with join code
+- [ ] Student join flow (code + display name)
+- [ ] Basic database schema
 
-## Recommendations
+**Week 3-4: Heat Engine**
+- [ ] Teacher starts heat (selects difficulty)
+- [ ] Students see countdown, receive questions
+- [ ] Submit answers, store response times
+- [ ] Heat ends after 2 minutes or 20 questions
 
-### Immediate Actions (Pre-Development)
+**Week 5-6: Results & Polish**
+- [ ] Post-heat results screen (ranking by score)
+- [ ] Teacher sees class performance summary
+- [ ] Basic error handling and offline support
+- [ ] Mobile-responsive styling
 
-1. **Revise sync requirements** - Change from "millisecond" to "perceptual" (200-500ms)
-2. **Define pricing** - Finalize tier pricing before any sales conversations
-3. **Scope V1 content** - Target 100 templates covering grades 2-5 (highest volume)
-4. **Drop 3D podium** - Use CSS-based visual effects for V1
+**Week 7-8: Content & Testing**
+- [ ] Implement 25 question templates
+- [ ] QA all templates (math correctness)
+- [ ] Load testing (target: 50 concurrent users)
+- [ ] Bug fixes from internal testing
 
-### Technical Priorities
+### 4.2 Post-MVP (Next 8 Weeks)
 
-| Priority | Item | Rationale |
-|----------|------|-----------|
-| P0 | Heat scheduler + basic sync | Core differentiator |
-| P0 | Question generation engine | Foundation for all content |
-| P1 | Teacher dashboard | Sales requirement |
-| P1 | Student progress tracking | Retention driver |
-| P2 | School admin portal | Enterprise sales enabler |
-| P3 | API/LMS integrations | District sales requirement |
+**Only if MVP proves engagement:**
+- Historical student tracking
+- Pro tier with payment (Stripe)
+- Additional grade levels (K-2, 6-8)
+- Class vs Class mode
 
-### Go-to-Market Sequence
+### 4.3 What We're Explicitly NOT Building
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  LAUNCH SEQUENCE                                                │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  PHASE 1: Alpha (Month 1-2)                                     │
-│  └─ 10 classrooms, personal teacher relationships               │
-│  └─ Focus: Core gameplay validation                             │
-│                                                                 │
-│  PHASE 2: Beta (Month 3-4)                                      │
-│  └─ 100 classrooms, invite-only                                 │
-│  └─ Focus: Scale testing, content feedback                      │
-│                                                                 │
-│  PHASE 3: Public Launch (Month 5)                               │
-│  └─ ProductHunt, teacher communities, conference demos          │
-│  └─ Focus: Viral growth, free tier adoption                     │
-│                                                                 │
-│  PHASE 4: Monetization (Month 6+)                               │
-│  └─ Pro tier launch, school pilots                              │
-│  └─ Focus: Revenue, case studies                                │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Feature | Reason |
+|---------|--------|
+| Global real-time heats | Complexity, unproven value |
+| 3D graphics/avatars | Performance risk, dev time |
+| Mobile native apps | Web works fine, app stores slow |
+| AI-powered tutoring | Scope creep, different product |
+| Parent dashboards | B2B focus, not B2C |
+| Multiplayer chat | Moderation nightmare |
+| Custom avatars/cosmetics | Distraction from core value |
 
 ---
 
-## Appendix: Technical Specification Gaps
+## Part 5: Risk Mitigation
 
-The following items need specification before development:
+### 5.1 Technical Risks
 
-| Area | Missing Specification |
-|------|----------------------|
-| Authentication | OAuth providers? Email/password? SSO for districts? |
-| Data retention | How long to keep student performance data? |
-| Accessibility | WCAG 2.1 AA compliance requirements? |
-| Localization | Multi-language support timeline? |
-| Mobile apps | Native iOS/Android or PWA-only? |
-| Offline mode | Required for V1 or future? |
-| Analytics | What events to track? Privacy considerations? |
+| Risk | Likelihood | Mitigation |
+|------|------------|------------|
+| Server can't handle load | Low | Start with one classroom at a time; horizontal scaling is straightforward |
+| Questions have math errors | Medium | Automated tests verify every template generates correct answers |
+| Slow on old Chromebooks | Medium | Performance budget enforced; test on real hardware |
+| School firewalls block | Low | Standard HTTPS on port 443; no WebSocket fallback needed |
+
+### 5.2 Business Risks
+
+| Risk | Likelihood | Mitigation |
+|------|------------|------------|
+| Teachers don't return | High | Focus first 10 teachers on "why not?" feedback |
+| Free tier too generous | Medium | Adjust limits based on conversion data |
+| Can't compete with Kahoot | Medium | Don't compete—focus on math depth, not general quizzes |
+| No one pays | Medium | Validate willingness to pay in user interviews before building payment |
+
+### 5.3 Content Risks
+
+| Risk | Likelihood | Mitigation |
+|------|------------|------------|
+| Questions too easy/hard | Medium | Teacher controls difficulty; collect feedback |
+| Not aligned to curriculum | Low | CCSS tags visible; teachers validate |
+| Students find patterns/cheat | Low | Procedural generation + randomization |
+
+---
+
+## Part 6: Success Criteria
+
+### MVP Success (Week 8)
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| Teachers complete signup | 10 | Database count |
+| Teachers run 3+ heats | 7 of 10 | Analytics |
+| Students engaged (complete heat) | 80% | Response completion rate |
+| Teacher NPS | > 30 | Survey |
+| Critical bugs | 0 | Bug tracker |
+
+### 3-Month Success
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| Organic teacher signups | 100 | No paid acquisition |
+| Weekly active teachers | 30 | Used in last 7 days |
+| Teacher retention (M2) | 40% | Cohort analysis |
+| Upgrade interest | 10 inquiries | Support/feedback |
+
+### 6-Month Success (Go/No-Go for Growth)
+
+| Metric | Target | Decision |
+|--------|--------|----------|
+| Free teachers | 500+ | Continue if yes |
+| Pro conversions | 20+ | Validate pricing |
+| Teacher referrals | 30% come from referral | Validate virality |
+| Student accuracy improvement | Measurable | Validate learning outcome |
 
 ---
 
 ## Conclusion
 
-**Mathathlon is a technically feasible and commercially viable product.** The core concept of "live math racing" addresses a genuine gap in the EdTech market. The primary risks are execution-related (network reliability, content quality) rather than fundamental.
+This specification is **ready to build**. It removes:
 
-**Recommended Next Steps:**
-1. Prototype the real-time heat system (2-week spike)
-2. Validate with 5 teachers before full development
-3. Secure 2-3 months of content development from math educators
-4. Plan for 6-month runway to public launch
+- Millisecond synchronization (impossible)
+- Global real-time heats (unnecessary complexity)
+- 3D graphics (performance risk)
+- Complex adaptive algorithms (cold start problem)
+- District sales (premature)
+
+It keeps:
+
+- Core "competitive math" experience
+- Teacher control and simplicity
+- Proven freemium business model
+- Narrow content focus (grades 3-5 arithmetic)
+- Clear 8-week MVP scope
+
+**Next step:** Start Week 1 development.
 
 ---
 
-*Review completed by Technical Architecture Analysis*
-*Document version: 1.0*
+*Specification version: 2.0*
+*Ready for implementation*
