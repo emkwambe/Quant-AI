@@ -1,0 +1,57 @@
+import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { mkdirSync, existsSync } from 'fs';
+
+import authRoutes from './routes/auth.js';
+import classroomRoutes from './routes/classrooms.js';
+import studentRoutes from './routes/students.js';
+import heatRoutes from './routes/heats.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Ensure data directory exists
+const dataDir = join(__dirname, '../data');
+if (!existsSync(dataDir)) {
+  mkdirSync(dataDir, { recursive: true });
+}
+
+// Initialize database
+import './db/index.js';
+
+// Middleware
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production'
+    ? false
+    : 'http://localhost:5173',
+  credentials: true
+}));
+app.use(express.json());
+app.use(cookieParser());
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/classrooms', classroomRoutes);
+app.use('/api/students', studentRoutes);
+app.use('/api/heats', heatRoutes);
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', time: new Date().toISOString() });
+});
+
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(join(__dirname, '../client/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(join(__dirname, '../client/dist/index.html'));
+  });
+}
+
+app.listen(PORT, () => {
+  console.log(`🏃 Mathathlon server running on http://localhost:${PORT}`);
+});
