@@ -177,6 +177,94 @@ const templates = {
     }
   },
 
+  // HIGH PRIORITY: K-2 Place Value
+  'k2-place-tens-ones': {
+    grade: 'K-2',
+    difficulty: 1,
+    skill: 'place-value',
+    standard: 'CCSS.1.NBT.B.2',
+    generate: (rng) => {
+      const tens = randInt(1, 9, rng);
+      const ones = randInt(0, 9, rng);
+      const number = tens * 10 + ones;
+      return { display: `${number} = ? tens + ${ones} ones`, answer: tens, template: 'k2-place-tens-ones' };
+    }
+  },
+
+  'k2-place-value-ones': {
+    grade: 'K-2',
+    difficulty: 1,
+    skill: 'place-value',
+    standard: 'CCSS.1.NBT.B.2',
+    generate: (rng) => {
+      const tens = randInt(1, 9, rng);
+      const ones = randInt(0, 9, rng);
+      const number = tens * 10 + ones;
+      return { display: `${number} = ${tens} tens + ? ones`, answer: ones, template: 'k2-place-value-ones' };
+    }
+  },
+
+  'k2-place-make-number': {
+    grade: 'K-2',
+    difficulty: 2,
+    skill: 'place-value',
+    standard: 'CCSS.1.NBT.B.2',
+    generate: (rng) => {
+      const tens = randInt(1, 9, rng);
+      const ones = randInt(0, 9, rng);
+      return { display: `${tens} tens + ${ones} ones = ?`, answer: tens * 10 + ones, template: 'k2-place-make-number' };
+    }
+  },
+
+  // MEDIUM PRIORITY: K-2 Comparison
+  'k2-compare-greater': {
+    grade: 'K-2',
+    difficulty: 1,
+    skill: 'comparison',
+    standard: 'CCSS.1.NBT.B.3',
+    generate: (rng) => {
+      const a = randInt(10, 99, rng);
+      let b = randInt(10, 99, rng);
+      while (b === a) b = randInt(10, 99, rng);
+      return { display: `Which is greater: ${a} or ${b}?`, answer: Math.max(a, b), template: 'k2-compare-greater' };
+    }
+  },
+
+  'k2-compare-less': {
+    grade: 'K-2',
+    difficulty: 1,
+    skill: 'comparison',
+    standard: 'CCSS.1.NBT.B.3',
+    generate: (rng) => {
+      const a = randInt(10, 99, rng);
+      let b = randInt(10, 99, rng);
+      while (b === a) b = randInt(10, 99, rng);
+      return { display: `Which is less: ${a} or ${b}?`, answer: Math.min(a, b), template: 'k2-compare-less' };
+    }
+  },
+
+  'k2-compare-10more': {
+    grade: 'K-2',
+    difficulty: 2,
+    skill: 'comparison',
+    standard: 'CCSS.1.NBT.C.5',
+    generate: (rng) => {
+      const a = randInt(10, 80, rng);
+      return { display: `10 more than ${a} = ?`, answer: a + 10, template: 'k2-compare-10more' };
+    }
+  },
+
+  'k2-compare-10less': {
+    grade: 'K-2',
+    difficulty: 2,
+    skill: 'comparison',
+    standard: 'CCSS.1.NBT.C.5',
+    generate: (rng) => {
+      const a = randInt(20, 99, rng);
+      return { display: `10 less than ${a} = ?`, answer: a - 10, template: 'k2-compare-10less' };
+    }
+  },
+
   // ============================================
   // GRADES 3-5 (Original templates - kept as is)
   // ============================================
@@ -490,6 +578,297 @@ const templates = {
     }
   },
 
+  // HIGH PRIORITY: 3-5 Fractions
+  'frac-add-same-denom': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'fractions',
+    standard: 'CCSS.4.NF.B.3',
+    generate: (rng) => {
+      const denom = pickOne([4, 5, 6, 8, 10], rng);
+      const a = randInt(1, denom - 2, rng);
+      const b = randInt(1, denom - a - 1, rng);
+      return { display: `${a}/${denom} + ${b}/${denom} = ?/${denom}`, answer: a + b, template: 'frac-add-same-denom' };
+    }
+  },
+
+  'frac-sub-same-denom': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'fractions',
+    standard: 'CCSS.4.NF.B.3',
+    generate: (rng) => {
+      const denom = pickOne([4, 5, 6, 8, 10], rng);
+      const a = randInt(3, denom - 1, rng);
+      const b = randInt(1, a - 1, rng);
+      return { display: `${a}/${denom} - ${b}/${denom} = ?/${denom}`, answer: a - b, template: 'frac-sub-same-denom' };
+    }
+  },
+
+  'frac-compare': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'fractions',
+    standard: 'CCSS.4.NF.A.2',
+    generate: (rng) => {
+      const denom = pickOne([4, 5, 6, 8], rng);
+      const a = randInt(1, denom - 1, rng);
+      let b = randInt(1, denom - 1, rng);
+      while (b === a) b = randInt(1, denom - 1, rng);
+      // Answer is the larger numerator
+      return { display: `Which is greater: ${a}/${denom} or ${b}/${denom}?`, answer: Math.max(a, b), template: 'frac-compare' };
+    }
+  },
+
+  'frac-equivalent': {
+    grade: '3-5',
+    difficulty: 4,
+    skill: 'fractions',
+    standard: 'CCSS.4.NF.A.1',
+    generate: (rng) => {
+      const numer = randInt(1, 4, rng);
+      const denom = randInt(numer + 1, 6, rng);
+      const mult = randInt(2, 4, rng);
+      // numer/denom = ?/(denom*mult)
+      return { display: `${numer}/${denom} = ?/${denom * mult}`, answer: numer * mult, template: 'frac-equivalent' };
+    }
+  },
+
+  'frac-mixed-to-improper': {
+    grade: '3-5',
+    difficulty: 4,
+    skill: 'fractions',
+    standard: 'CCSS.4.NF.B.3',
+    generate: (rng) => {
+      const whole = randInt(1, 4, rng);
+      const denom = randInt(2, 6, rng);
+      const numer = randInt(1, denom - 1, rng);
+      // whole numer/denom = ?/denom (improper)
+      const answer = whole * denom + numer;
+      return { display: `${whole} ${numer}/${denom} = ?/${denom}`, answer, template: 'frac-mixed-to-improper' };
+    }
+  },
+
+  // HIGH PRIORITY: 3-5 Decimals
+  'decimal-add-tenths': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'decimals',
+    standard: 'CCSS.5.NBT.B.7',
+    generate: (rng) => {
+      const a = randInt(1, 50, rng) / 10;
+      const b = randInt(1, 50, rng) / 10;
+      const answer = Math.round((a + b) * 10) / 10;
+      return { display: `${a.toFixed(1)} + ${b.toFixed(1)}`, answer, template: 'decimal-add-tenths' };
+    }
+  },
+
+  'decimal-sub-tenths': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'decimals',
+    standard: 'CCSS.5.NBT.B.7',
+    generate: (rng) => {
+      const a = randInt(30, 90, rng) / 10;
+      const b = randInt(10, Math.floor(a * 10) - 5, rng) / 10;
+      const answer = Math.round((a - b) * 10) / 10;
+      return { display: `${a.toFixed(1)} - ${b.toFixed(1)}`, answer, template: 'decimal-sub-tenths' };
+    }
+  },
+
+  'decimal-to-fraction': {
+    grade: '3-5',
+    difficulty: 4,
+    skill: 'decimals',
+    standard: 'CCSS.4.NF.C.6',
+    generate: (rng) => {
+      const numer = randInt(1, 9, rng);
+      // 0.X = X/10, answer is X
+      return { display: `0.${numer} = ?/10`, answer: numer, template: 'decimal-to-fraction' };
+    }
+  },
+
+  'decimal-compare': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'decimals',
+    standard: 'CCSS.5.NBT.A.3',
+    generate: (rng) => {
+      const a = randInt(10, 99, rng) / 10;
+      let b = randInt(10, 99, rng) / 10;
+      while (b === a) b = randInt(10, 99, rng) / 10;
+      const answer = Math.round(Math.max(a, b) * 10) / 10;
+      return { display: `Which is greater: ${a.toFixed(1)} or ${b.toFixed(1)}?`, answer, template: 'decimal-compare' };
+    }
+  },
+
+  'decimal-mult-10': {
+    grade: '3-5',
+    difficulty: 4,
+    skill: 'decimals',
+    standard: 'CCSS.5.NBT.A.2',
+    generate: (rng) => {
+      const a = randInt(1, 99, rng) / 10;
+      const answer = a * 10;
+      return { display: `${a.toFixed(1)} × 10`, answer, template: 'decimal-mult-10' };
+    }
+  },
+
+  // MEDIUM PRIORITY: 3-5 Rounding
+  'round-to-10': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'rounding',
+    standard: 'CCSS.3.NBT.A.1',
+    generate: (rng) => {
+      const n = randInt(11, 99, rng);
+      const answer = Math.round(n / 10) * 10;
+      return { display: `Round ${n} to nearest 10`, answer, template: 'round-to-10' };
+    }
+  },
+
+  'round-to-100': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'rounding',
+    standard: 'CCSS.3.NBT.A.1',
+    generate: (rng) => {
+      const n = randInt(101, 999, rng);
+      const answer = Math.round(n / 100) * 100;
+      return { display: `Round ${n} to nearest 100`, answer, template: 'round-to-100' };
+    }
+  },
+
+  'round-to-1000': {
+    grade: '3-5',
+    difficulty: 4,
+    skill: 'rounding',
+    standard: 'CCSS.4.NBT.A.3',
+    generate: (rng) => {
+      const n = randInt(1001, 9999, rng);
+      const answer = Math.round(n / 1000) * 1000;
+      return { display: `Round ${n} to nearest 1000`, answer, template: 'round-to-1000' };
+    }
+  },
+
+  // MEDIUM PRIORITY: 3-5 Perimeter/Area
+  'rect-perimeter': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'geometry',
+    standard: 'CCSS.3.MD.D.8',
+    generate: (rng) => {
+      const length = randInt(3, 15, rng);
+      const width = randInt(2, 12, rng);
+      const answer = 2 * (length + width);
+      return { display: `Perimeter: L=${length}, W=${width}`, answer, template: 'rect-perimeter' };
+    }
+  },
+
+  'rect-area': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'geometry',
+    standard: 'CCSS.3.MD.C.7',
+    generate: (rng) => {
+      const length = randInt(2, 12, rng);
+      const width = randInt(2, 10, rng);
+      const answer = length * width;
+      return { display: `Area: L=${length}, W=${width}`, answer, template: 'rect-area' };
+    }
+  },
+
+  'rect-find-side': {
+    grade: '3-5',
+    difficulty: 4,
+    skill: 'geometry',
+    standard: 'CCSS.4.MD.A.3',
+    generate: (rng) => {
+      const length = randInt(3, 10, rng);
+      const width = randInt(2, 8, rng);
+      const area = length * width;
+      return { display: `Area=${area}, L=${length}, W=?`, answer: width, template: 'rect-find-side' };
+    }
+  },
+
+  'square-perimeter': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'geometry',
+    standard: 'CCSS.3.MD.D.8',
+    generate: (rng) => {
+      const side = randInt(2, 15, rng);
+      return { display: `Square perimeter: side=${side}`, answer: 4 * side, template: 'square-perimeter' };
+    }
+  },
+
+  'square-area': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'geometry',
+    standard: 'CCSS.3.MD.C.7',
+    generate: (rng) => {
+      const side = randInt(2, 12, rng);
+      return { display: `Square area: side=${side}`, answer: side * side, template: 'square-area' };
+    }
+  },
+
+  // LOW PRIORITY: 3-5 Time/Money
+  'time-elapsed-hours': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'time',
+    standard: 'CCSS.3.MD.A.1',
+    generate: (rng) => {
+      const start = randInt(1, 10, rng);
+      const elapsed = randInt(1, 6, rng);
+      const end = start + elapsed;
+      return { display: `${start}:00 to ${end}:00 = ? hours`, answer: elapsed, template: 'time-elapsed-hours' };
+    }
+  },
+
+  'time-elapsed-30min': {
+    grade: '3-5',
+    difficulty: 4,
+    skill: 'time',
+    standard: 'CCSS.3.MD.A.1',
+    generate: (rng) => {
+      const hours = randInt(1, 4, rng);
+      const halfHours = randInt(0, 1, rng);
+      const totalMinutes = hours * 60 + halfHours * 30;
+      return { display: `${hours}${halfHours ? ':30' : ''} hours = ? minutes`, answer: totalMinutes, template: 'time-elapsed-30min' };
+    }
+  },
+
+  'money-add-coins': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'money',
+    standard: 'CCSS.2.MD.C.8',
+    generate: (rng) => {
+      const quarters = randInt(1, 4, rng);
+      const dimes = randInt(0, 5, rng);
+      const nickels = randInt(0, 4, rng);
+      const total = quarters * 25 + dimes * 10 + nickels * 5;
+      return { display: `${quarters}Q + ${dimes}D + ${nickels}N = ? cents`, answer: total, template: 'money-add-coins' };
+    }
+  },
+
+  'money-make-change': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'money',
+    standard: 'CCSS.2.MD.C.8',
+    generate: (rng) => {
+      const paid = pickOne([100, 200, 500, 1000], rng);
+      const cost = randInt(10, paid - 10, rng);
+      const change = paid - cost;
+      const paidDisplay = paid >= 100 ? `$${paid / 100}` : `${paid}¢`;
+      const costDisplay = cost >= 100 ? `$${(cost / 100).toFixed(2)}` : `${cost}¢`;
+      return { display: `Paid ${paidDisplay}, cost ${costDisplay}, change=?¢`, answer: change, template: 'money-make-change' };
+    }
+  },
+
   // ============================================
   // GRADES 6-8 (Pre-Algebra, Integers, Ratios)
   // ============================================
@@ -744,6 +1123,296 @@ const templates = {
       const triples = [[3, 4, 5], [5, 12, 13], [6, 8, 10], [8, 15, 17]];
       const [a, b, c] = pickOne(triples, rng);
       return { display: `a=${a}, b=${b}, c=?`, answer: c, template: '68-pythagorean' };
+    }
+  },
+
+  // HIGH PRIORITY: 6-8 Proportions
+  '68-unit-rate': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'ratios',
+    standard: 'CCSS.6.RP.A.2',
+    generate: (rng) => {
+      const rate = randInt(2, 10, rng);
+      const quantity = randInt(2, 8, rng);
+      const total = rate * quantity;
+      return { display: `${total} items for ${quantity} people = ? per person`, answer: rate, template: '68-unit-rate' };
+    }
+  },
+
+  '68-cross-multiply': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'proportions',
+    standard: 'CCSS.7.RP.A.2',
+    generate: (rng) => {
+      const a = randInt(2, 8, rng);
+      const b = randInt(2, 8, rng);
+      const mult = randInt(2, 5, rng);
+      // a/b = (a*mult)/?
+      return { display: `${a}/${b} = ${a * mult}/?`, answer: b * mult, template: '68-cross-multiply' };
+    }
+  },
+
+  '68-scale-factor': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'proportions',
+    standard: 'CCSS.7.G.A.1',
+    generate: (rng) => {
+      const original = randInt(3, 12, rng);
+      const scale = randInt(2, 5, rng);
+      const scaled = original * scale;
+      return { display: `Original: ${original}, Scaled: ${scaled}, Factor=?`, answer: scale, template: '68-scale-factor' };
+    }
+  },
+
+  '68-proportion-word': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'proportions',
+    standard: 'CCSS.7.RP.A.3',
+    generate: (rng) => {
+      const rate = randInt(2, 6, rng);
+      const time1 = randInt(2, 5, rng);
+      const amount1 = rate * time1;
+      const time2 = randInt(3, 8, rng);
+      return { display: `${amount1} in ${time1} hrs, ? in ${time2} hrs`, answer: rate * time2, template: '68-proportion-word' };
+    }
+  },
+
+  // MEDIUM PRIORITY: 6-8 Inequalities
+  '68-inequality-add': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'inequalities',
+    standard: 'CCSS.7.EE.B.4',
+    generate: (rng) => {
+      const answer = randInt(1, 15, rng);
+      const a = randInt(1, 10, rng);
+      const c = a + answer;
+      // x + a < c, so x < (c - a), answer is the boundary
+      return { display: `x + ${a} < ${c}, x < ?`, answer: c - a, template: '68-inequality-add' };
+    }
+  },
+
+  '68-inequality-mult': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'inequalities',
+    standard: 'CCSS.7.EE.B.4',
+    generate: (rng) => {
+      const a = randInt(2, 6, rng);
+      const answer = randInt(2, 10, rng);
+      const c = a * answer;
+      // ax ≤ c, so x ≤ c/a
+      return { display: `${a}x ≤ ${c}, x ≤ ?`, answer, template: '68-inequality-mult' };
+    }
+  },
+
+  '68-inequality-2step': {
+    grade: '6-8',
+    difficulty: 6,
+    skill: 'inequalities',
+    standard: 'CCSS.7.EE.B.4',
+    generate: (rng) => {
+      const a = randInt(2, 4, rng);
+      const b = randInt(1, 8, rng);
+      const answer = randInt(2, 8, rng);
+      const c = a * answer + b;
+      // ax + b > c, so x > (c-b)/a
+      return { display: `${a}x + ${b} > ${c}, x > ?`, answer, template: '68-inequality-2step' };
+    }
+  },
+
+  // MEDIUM PRIORITY: 6-8 Coordinates
+  '68-distance-horizontal': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'coordinates',
+    standard: 'CCSS.6.NS.C.8',
+    generate: (rng) => {
+      const x1 = randInt(-10, 5, rng);
+      const x2 = randInt(x1 + 2, 10, rng);
+      const y = randInt(-5, 5, rng);
+      const distance = Math.abs(x2 - x1);
+      return { display: `Distance: (${x1},${y}) to (${x2},${y})`, answer: distance, template: '68-distance-horizontal' };
+    }
+  },
+
+  '68-distance-vertical': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'coordinates',
+    standard: 'CCSS.6.NS.C.8',
+    generate: (rng) => {
+      const x = randInt(-5, 5, rng);
+      const y1 = randInt(-10, 5, rng);
+      const y2 = randInt(y1 + 2, 10, rng);
+      const distance = Math.abs(y2 - y1);
+      return { display: `Distance: (${x},${y1}) to (${x},${y2})`, answer: distance, template: '68-distance-vertical' };
+    }
+  },
+
+  '68-midpoint-x': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'coordinates',
+    standard: 'CCSS.8.G.B.8',
+    generate: (rng) => {
+      // Use even numbers to ensure integer midpoint
+      const x1 = randInt(-8, 4, rng) * 2;
+      const x2 = randInt(-4, 8, rng) * 2;
+      const y = randInt(-5, 5, rng);
+      const midX = (x1 + x2) / 2;
+      return { display: `Midpoint x: (${x1},${y}) to (${x2},${y})`, answer: midX, template: '68-midpoint-x' };
+    }
+  },
+
+  '68-quadrant': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'coordinates',
+    standard: 'CCSS.6.NS.C.6',
+    generate: (rng) => {
+      const quadrant = randInt(1, 4, rng);
+      let x, y;
+      if (quadrant === 1) { x = randInt(1, 10, rng); y = randInt(1, 10, rng); }
+      else if (quadrant === 2) { x = randInt(-10, -1, rng); y = randInt(1, 10, rng); }
+      else if (quadrant === 3) { x = randInt(-10, -1, rng); y = randInt(-10, -1, rng); }
+      else { x = randInt(1, 10, rng); y = randInt(-10, -1, rng); }
+      return { display: `(${x}, ${y}) is in Quadrant ?`, answer: quadrant, template: '68-quadrant' };
+    }
+  },
+
+  // LOW PRIORITY: 6-8 Statistics
+  '68-mean': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'statistics',
+    standard: 'CCSS.6.SP.B.5',
+    generate: (rng) => {
+      const count = randInt(3, 5, rng);
+      const mean = randInt(5, 15, rng);
+      const total = mean * count;
+      // Generate numbers that sum to total
+      const nums = [];
+      let remaining = total;
+      for (let i = 0; i < count - 1; i++) {
+        const n = randInt(1, Math.min(remaining - (count - i - 1), mean + 5), rng);
+        nums.push(n);
+        remaining -= n;
+      }
+      nums.push(remaining);
+      return { display: `Mean of ${nums.join(', ')}`, answer: mean, template: '68-mean' };
+    }
+  },
+
+  '68-median-odd': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'statistics',
+    standard: 'CCSS.6.SP.B.5',
+    generate: (rng) => {
+      const nums = [];
+      for (let i = 0; i < 5; i++) {
+        nums.push(randInt(1, 20, rng));
+      }
+      nums.sort((a, b) => a - b);
+      const median = nums[2];
+      // Shuffle for display
+      const shuffled = [...nums].sort(() => rng() - 0.5);
+      return { display: `Median of ${shuffled.join(', ')}`, answer: median, template: '68-median-odd' };
+    }
+  },
+
+  '68-mode': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'statistics',
+    standard: 'CCSS.6.SP.B.5',
+    generate: (rng) => {
+      const mode = randInt(2, 15, rng);
+      const nums = [mode, mode, mode];
+      // Add some other numbers
+      for (let i = 0; i < 3; i++) {
+        let n = randInt(1, 20, rng);
+        while (n === mode) n = randInt(1, 20, rng);
+        nums.push(n);
+      }
+      const shuffled = nums.sort(() => rng() - 0.5);
+      return { display: `Mode of ${shuffled.join(', ')}`, answer: mode, template: '68-mode' };
+    }
+  },
+
+  '68-range': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'statistics',
+    standard: 'CCSS.6.SP.B.5',
+    generate: (rng) => {
+      const min = randInt(1, 10, rng);
+      const range = randInt(5, 20, rng);
+      const max = min + range;
+      const nums = [min, max];
+      for (let i = 0; i < 3; i++) {
+        nums.push(randInt(min, max, rng));
+      }
+      const shuffled = nums.sort(() => rng() - 0.5);
+      return { display: `Range of ${shuffled.join(', ')}`, answer: range, template: '68-range' };
+    }
+  },
+
+  // LOW PRIORITY: 6-8 Probability
+  '68-prob-simple': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'probability',
+    standard: 'CCSS.7.SP.C.5',
+    generate: (rng) => {
+      const favorable = randInt(1, 5, rng);
+      const total = randInt(favorable + 1, 10, rng);
+      // Express as "X out of Y, numerator = ?"
+      return { display: `${favorable} favorable out of ${total}: ?/${total}`, answer: favorable, template: '68-prob-simple' };
+    }
+  },
+
+  '68-prob-complement': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'probability',
+    standard: 'CCSS.7.SP.C.5',
+    generate: (rng) => {
+      const total = randInt(5, 10, rng);
+      const favorable = randInt(1, total - 1, rng);
+      const complement = total - favorable;
+      return { display: `P(A)=${favorable}/${total}, P(not A)=?/${total}`, answer: complement, template: '68-prob-complement' };
+    }
+  },
+
+  '68-prob-dice': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'probability',
+    standard: 'CCSS.7.SP.C.6',
+    generate: (rng) => {
+      const target = randInt(1, 6, rng);
+      // Rolling exactly target on a 6-sided die: 1/6, but we ask differently
+      // "How many ways to roll less than X?"
+      return { display: `Ways to roll < ${target + 1} on a die`, answer: target, template: '68-prob-dice' };
+    }
+  },
+
+  '68-prob-expected': {
+    grade: '6-8',
+    difficulty: 6,
+    skill: 'probability',
+    standard: 'CCSS.7.SP.C.6',
+    generate: (rng) => {
+      const prob = pickOne([2, 4, 5, 10], rng); // represents X/10 probability
+      const trials = randInt(2, 5, rng) * 10;
+      const expected = (prob / 10) * trials;
+      return { display: `P=${prob}/10, ${trials} trials, expected=?`, answer: expected, template: '68-prob-expected' };
     }
   }
 };
