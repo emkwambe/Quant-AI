@@ -265,6 +265,114 @@ const templates = {
     }
   },
 
+  // K-2: Number Bonds and Fact Families
+  'k2-number-bond-10': {
+    grade: 'K-2',
+    difficulty: 1,
+    skill: 'number-bonds',
+    standard: 'CCSS.K.OA.A.4',
+    generate: (rng) => {
+      const a = randInt(1, 9, rng);
+      return { display: `${a} + ? = 10`, answer: 10 - a, template: 'k2-number-bond-10' };
+    }
+  },
+
+  'k2-number-bond-20': {
+    grade: 'K-2',
+    difficulty: 2,
+    skill: 'number-bonds',
+    standard: 'CCSS.1.OA.C.6',
+    generate: (rng) => {
+      const a = randInt(1, 19, rng);
+      return { display: `${a} + ? = 20`, answer: 20 - a, template: 'k2-number-bond-20' };
+    }
+  },
+
+  'k2-fact-family-add': {
+    grade: 'K-2',
+    difficulty: 1,
+    skill: 'fact-families',
+    standard: 'CCSS.1.OA.B.4',
+    generate: (rng) => {
+      const a = randInt(2, 9, rng);
+      const b = randInt(1, a - 1, rng);
+      const c = a; // a = b + ?
+      return { display: `${b} + ? = ${c}`, answer: c - b, template: 'k2-fact-family-add' };
+    }
+  },
+
+  'k2-fact-family-sub': {
+    grade: 'K-2',
+    difficulty: 1,
+    skill: 'fact-families',
+    standard: 'CCSS.1.OA.B.4',
+    generate: (rng) => {
+      const total = randInt(5, 15, rng);
+      const part = randInt(1, total - 1, rng);
+      return { display: `${total} - ${part} = ?`, answer: total - part, template: 'k2-fact-family-sub' };
+    }
+  },
+
+  // K-2: Even and Odd
+  'k2-even-odd-identify': {
+    grade: 'K-2',
+    difficulty: 1,
+    skill: 'even-odd',
+    standard: 'CCSS.2.OA.C.3',
+    generate: (rng) => {
+      const n = randInt(1, 20, rng);
+      // Answer: 0 for even, 1 for odd
+      return { display: `Is ${n} even(0) or odd(1)?`, answer: n % 2, template: 'k2-even-odd-identify' };
+    }
+  },
+
+  'k2-next-even': {
+    grade: 'K-2',
+    difficulty: 2,
+    skill: 'even-odd',
+    standard: 'CCSS.2.OA.C.3',
+    generate: (rng) => {
+      const n = randInt(1, 18, rng) * 2; // even number
+      return { display: `Next even after ${n}?`, answer: n + 2, template: 'k2-next-even' };
+    }
+  },
+
+  'k2-next-odd': {
+    grade: 'K-2',
+    difficulty: 2,
+    skill: 'even-odd',
+    standard: 'CCSS.2.OA.C.3',
+    generate: (rng) => {
+      const n = randInt(1, 17, rng) * 2 + 1; // odd number
+      return { display: `Next odd after ${n}?`, answer: n + 2, template: 'k2-next-odd' };
+    }
+  },
+
+  // K-2: Arrays and Equal Groups
+  'k2-array-total': {
+    grade: 'K-2',
+    difficulty: 2,
+    skill: 'arrays',
+    standard: 'CCSS.2.OA.C.4',
+    generate: (rng) => {
+      const rows = randInt(2, 5, rng);
+      const cols = randInt(2, 5, rng);
+      return { display: `${rows} rows × ${cols} columns = ?`, answer: rows * cols, template: 'k2-array-total' };
+    }
+  },
+
+  'k2-equal-groups': {
+    grade: 'K-2',
+    difficulty: 2,
+    skill: 'arrays',
+    standard: 'CCSS.2.OA.C.4',
+    generate: (rng) => {
+      const groups = randInt(2, 5, rng);
+      const perGroup = randInt(2, 5, rng);
+      return { display: `${groups} groups of ${perGroup} = ?`, answer: groups * perGroup, template: 'k2-equal-groups' };
+    }
+  },
+
   // ============================================
   // GRADES 3-5 (Original templates - kept as is)
   // ============================================
@@ -869,6 +977,271 @@ const templates = {
     }
   },
 
+  // 3-5: Factors and Multiples
+  'factors-list': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'factors',
+    standard: 'CCSS.4.OA.B.4',
+    generate: (rng) => {
+      const n = pickOne([12, 16, 18, 20, 24, 30, 36], rng);
+      const factors = [];
+      for (let i = 1; i <= n; i++) if (n % i === 0) factors.push(i);
+      return { display: `How many factors does ${n} have?`, answer: factors.length, template: 'factors-list' };
+    }
+  },
+
+  'is-factor': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'factors',
+    standard: 'CCSS.4.OA.B.4',
+    generate: (rng) => {
+      const n = randInt(12, 50, rng);
+      const f = randInt(2, 9, rng);
+      // Answer: 1 if factor, 0 if not
+      return { display: `Is ${f} a factor of ${n}? (1=yes, 0=no)`, answer: n % f === 0 ? 1 : 0, template: 'is-factor' };
+    }
+  },
+
+  'first-multiples': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'multiples',
+    standard: 'CCSS.4.OA.B.4',
+    generate: (rng) => {
+      const n = randInt(3, 9, rng);
+      const pos = randInt(4, 8, rng);
+      return { display: `${pos}th multiple of ${n}?`, answer: n * pos, template: 'first-multiples' };
+    }
+  },
+
+  'is-multiple': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'multiples',
+    standard: 'CCSS.4.OA.B.4',
+    generate: (rng) => {
+      const base = randInt(3, 9, rng);
+      const mult = randInt(2, 10, rng);
+      const n = base * mult + randInt(0, 1, rng); // sometimes exact multiple
+      return { display: `Is ${n} a multiple of ${base}? (1=yes, 0=no)`, answer: n % base === 0 ? 1 : 0, template: 'is-multiple' };
+    }
+  },
+
+  'is-prime': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'primes',
+    standard: 'CCSS.4.OA.B.4',
+    generate: (rng) => {
+      const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31];
+      const composites = [4, 6, 8, 9, 10, 12, 14, 15, 16, 18, 20, 21, 22, 24, 25, 26, 27, 28];
+      const isPrime = randInt(0, 1, rng);
+      const n = isPrime ? pickOne(primes, rng) : pickOne(composites, rng);
+      return { display: `Is ${n} prime? (1=yes, 0=no)`, answer: isPrime, template: 'is-prime' };
+    }
+  },
+
+  'prime-factorization-small': {
+    grade: '3-5',
+    difficulty: 4,
+    skill: 'primes',
+    standard: 'CCSS.4.OA.B.4',
+    generate: (rng) => {
+      // Products of small primes
+      const a = pickOne([2, 3, 5], rng);
+      const b = pickOne([2, 3, 5, 7], rng);
+      const n = a * b;
+      // Answer is the smaller prime factor
+      return { display: `Smallest prime factor of ${n}?`, answer: Math.min(a, b), template: 'prime-factorization-small' };
+    }
+  },
+
+  // 3-5: Patterns and Sequences
+  'pattern-add': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'patterns',
+    standard: 'CCSS.4.OA.C.5',
+    generate: (rng) => {
+      const start = randInt(2, 10, rng);
+      const step = randInt(2, 7, rng);
+      const seq = [start, start + step, start + 2 * step];
+      return { display: `${seq.join(', ')}, ?`, answer: start + 3 * step, template: 'pattern-add' };
+    }
+  },
+
+  'pattern-mult': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'patterns',
+    standard: 'CCSS.4.OA.C.5',
+    generate: (rng) => {
+      const start = randInt(1, 3, rng);
+      const mult = randInt(2, 3, rng);
+      const seq = [start, start * mult, start * mult * mult];
+      return { display: `${seq.join(', ')}, ?`, answer: start * mult * mult * mult, template: 'pattern-mult' };
+    }
+  },
+
+  'pattern-rule': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'patterns',
+    standard: 'CCSS.4.OA.C.5',
+    generate: (rng) => {
+      const step = randInt(3, 8, rng);
+      const start = randInt(1, 10, rng);
+      const pos = randInt(5, 10, rng);
+      // What is the Nth term if pattern starts at 'start' and adds 'step'?
+      return { display: `Start=${start}, add ${step} each time. Term ${pos}=?`, answer: start + (pos - 1) * step, template: 'pattern-rule' };
+    }
+  },
+
+  'input-output': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'patterns',
+    standard: 'CCSS.4.OA.C.5',
+    generate: (rng) => {
+      const mult = randInt(2, 5, rng);
+      const add = randInt(0, 5, rng);
+      const input = randInt(3, 10, rng);
+      // Rule: output = input × mult + add
+      return { display: `Rule: ×${mult}${add > 0 ? '+' + add : ''}. Input=${input}, Output=?`, answer: input * mult + add, template: 'input-output' };
+    }
+  },
+
+  // 3-5: Measurement Conversions
+  'convert-feet-inches': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'measurement',
+    standard: 'CCSS.4.MD.A.1',
+    generate: (rng) => {
+      const feet = randInt(1, 8, rng);
+      return { display: `${feet} feet = ? inches`, answer: feet * 12, template: 'convert-feet-inches' };
+    }
+  },
+
+  'convert-yards-feet': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'measurement',
+    standard: 'CCSS.4.MD.A.1',
+    generate: (rng) => {
+      const yards = randInt(1, 10, rng);
+      return { display: `${yards} yards = ? feet`, answer: yards * 3, template: 'convert-yards-feet' };
+    }
+  },
+
+  'convert-meters-cm': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'measurement',
+    standard: 'CCSS.4.MD.A.1',
+    generate: (rng) => {
+      const meters = randInt(1, 10, rng);
+      return { display: `${meters} meters = ? cm`, answer: meters * 100, template: 'convert-meters-cm' };
+    }
+  },
+
+  'convert-kg-g': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'measurement',
+    standard: 'CCSS.4.MD.A.1',
+    generate: (rng) => {
+      const kg = randInt(1, 10, rng);
+      return { display: `${kg} kg = ? grams`, answer: kg * 1000, template: 'convert-kg-g' };
+    }
+  },
+
+  'convert-liters-ml': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'measurement',
+    standard: 'CCSS.4.MD.A.1',
+    generate: (rng) => {
+      const liters = randInt(1, 8, rng);
+      return { display: `${liters} liters = ? mL`, answer: liters * 1000, template: 'convert-liters-ml' };
+    }
+  },
+
+  'convert-hours-minutes': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'measurement',
+    standard: 'CCSS.4.MD.A.1',
+    generate: (rng) => {
+      const hours = randInt(1, 6, rng);
+      return { display: `${hours} hours = ? minutes`, answer: hours * 60, template: 'convert-hours-minutes' };
+    }
+  },
+
+  'convert-days-hours': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'measurement',
+    standard: 'CCSS.4.MD.A.1',
+    generate: (rng) => {
+      const days = randInt(1, 5, rng);
+      return { display: `${days} days = ? hours`, answer: days * 24, template: 'convert-days-hours' };
+    }
+  },
+
+  // 3-5: Volume (3D Shapes)
+  'volume-cube': {
+    grade: '3-5',
+    difficulty: 4,
+    skill: 'volume',
+    standard: 'CCSS.5.MD.C.5',
+    generate: (rng) => {
+      const side = randInt(2, 6, rng);
+      return { display: `Cube volume: side=${side}`, answer: side * side * side, template: 'volume-cube' };
+    }
+  },
+
+  'volume-rectangular': {
+    grade: '3-5',
+    difficulty: 4,
+    skill: 'volume',
+    standard: 'CCSS.5.MD.C.5',
+    generate: (rng) => {
+      const l = randInt(2, 6, rng);
+      const w = randInt(2, 5, rng);
+      const h = randInt(2, 5, rng);
+      return { display: `Box volume: ${l}×${w}×${h}`, answer: l * w * h, template: 'volume-rectangular' };
+    }
+  },
+
+  'volume-unit-cubes': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'volume',
+    standard: 'CCSS.5.MD.C.3',
+    generate: (rng) => {
+      const layers = randInt(2, 4, rng);
+      const perLayer = randInt(4, 12, rng);
+      return { display: `${layers} layers, ${perLayer} cubes each = ?`, answer: layers * perLayer, template: 'volume-unit-cubes' };
+    }
+  },
+
+  'volume-find-dimension': {
+    grade: '3-5',
+    difficulty: 5,
+    skill: 'volume',
+    standard: 'CCSS.5.MD.C.5',
+    generate: (rng) => {
+      const l = randInt(2, 6, rng);
+      const w = randInt(2, 5, rng);
+      const h = randInt(2, 5, rng);
+      const v = l * w * h;
+      return { display: `V=${v}, L=${l}, W=${w}, H=?`, answer: h, template: 'volume-find-dimension' };
+    }
+  },
+
   // ============================================
   // GRADES 6-8 (Pre-Algebra, Integers, Ratios)
   // ============================================
@@ -1413,6 +1786,348 @@ const templates = {
       const trials = randInt(2, 5, rng) * 10;
       const expected = (prob / 10) * trials;
       return { display: `P=${prob}/10, ${trials} trials, expected=?`, answer: expected, template: '68-prob-expected' };
+    }
+  },
+
+  // 6-8: Percent Change and Financial Math
+  '68-percent-increase': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'percent',
+    standard: 'CCSS.7.RP.A.3',
+    generate: (rng) => {
+      const original = randInt(2, 10, rng) * 10;
+      const percent = pickOne([10, 20, 25, 50], rng);
+      const increase = original * percent / 100;
+      return { display: `${original} + ${percent}% = ?`, answer: original + increase, template: '68-percent-increase' };
+    }
+  },
+
+  '68-percent-decrease': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'percent',
+    standard: 'CCSS.7.RP.A.3',
+    generate: (rng) => {
+      const original = randInt(2, 10, rng) * 10;
+      const percent = pickOne([10, 20, 25, 50], rng);
+      const decrease = original * percent / 100;
+      return { display: `${original} - ${percent}% = ?`, answer: original - decrease, template: '68-percent-decrease' };
+    }
+  },
+
+  '68-find-percent-change': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'percent',
+    standard: 'CCSS.7.RP.A.3',
+    generate: (rng) => {
+      const original = randInt(2, 10, rng) * 10;
+      const percent = pickOne([10, 20, 25, 50], rng);
+      const newVal = original + original * percent / 100;
+      return { display: `${original} → ${newVal}, % increase?`, answer: percent, template: '68-find-percent-change' };
+    }
+  },
+
+  '68-simple-interest': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'financial',
+    standard: 'CCSS.7.RP.A.3',
+    generate: (rng) => {
+      const principal = randInt(1, 5, rng) * 100;
+      const rate = pickOne([5, 10, 20], rng);
+      const years = randInt(1, 3, rng);
+      const interest = principal * rate * years / 100;
+      return { display: `I = $${principal} × ${rate}% × ${years}yr`, answer: interest, template: '68-simple-interest' };
+    }
+  },
+
+  '68-discount': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'financial',
+    standard: 'CCSS.7.RP.A.3',
+    generate: (rng) => {
+      const price = randInt(2, 10, rng) * 10;
+      const discount = pickOne([10, 20, 25, 50], rng);
+      const sale = price - price * discount / 100;
+      return { display: `$${price} with ${discount}% off = ?`, answer: sale, template: '68-discount' };
+    }
+  },
+
+  '68-tax-tip': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'financial',
+    standard: 'CCSS.7.RP.A.3',
+    generate: (rng) => {
+      const bill = randInt(2, 10, rng) * 10;
+      const tipPercent = pickOne([10, 15, 20], rng);
+      const tip = bill * tipPercent / 100;
+      return { display: `$${bill} + ${tipPercent}% tip = ?`, answer: bill + tip, template: '68-tax-tip' };
+    }
+  },
+
+  // 6-8: Scientific Notation
+  '68-sci-notation-read': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'scientific-notation',
+    standard: 'CCSS.8.EE.A.3',
+    generate: (rng) => {
+      const coef = randInt(1, 9, rng);
+      const exp = randInt(2, 5, rng);
+      const answer = coef * Math.pow(10, exp);
+      return { display: `${coef} × 10^${exp} = ?`, answer, template: '68-sci-notation-read' };
+    }
+  },
+
+  '68-sci-notation-write-exp': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'scientific-notation',
+    standard: 'CCSS.8.EE.A.3',
+    generate: (rng) => {
+      const exp = randInt(3, 6, rng);
+      const n = Math.pow(10, exp);
+      return { display: `${n.toLocaleString()} = 10^?`, answer: exp, template: '68-sci-notation-write-exp' };
+    }
+  },
+
+  '68-sci-notation-compare': {
+    grade: '6-8',
+    difficulty: 6,
+    skill: 'scientific-notation',
+    standard: 'CCSS.8.EE.A.3',
+    generate: (rng) => {
+      const exp1 = randInt(3, 6, rng);
+      const exp2 = randInt(3, 6, rng);
+      const coef1 = randInt(1, 9, rng);
+      const coef2 = randInt(1, 9, rng);
+      const n1 = coef1 * Math.pow(10, exp1);
+      const n2 = coef2 * Math.pow(10, exp2);
+      // Answer: 1 if first is larger, 2 if second
+      return { display: `Larger: (1) ${coef1}×10^${exp1} or (2) ${coef2}×10^${exp2}?`, answer: n1 > n2 ? 1 : 2, template: '68-sci-notation-compare' };
+    }
+  },
+
+  // 6-8: Linear Equations (Slope and Graphing)
+  '68-slope-from-points': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'linear',
+    standard: 'CCSS.8.EE.B.6',
+    generate: (rng) => {
+      const rise = randInt(-5, 5, rng);
+      const run = randInt(1, 5, rng);
+      const x1 = randInt(0, 5, rng);
+      const y1 = randInt(0, 5, rng);
+      const x2 = x1 + run;
+      const y2 = y1 + rise;
+      // Answer is rise (slope = rise/run, but we ask for rise)
+      return { display: `(${x1},${y1}) to (${x2},${y2}): rise=?`, answer: rise, template: '68-slope-from-points' };
+    }
+  },
+
+  '68-slope-from-equation': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'linear',
+    standard: 'CCSS.8.EE.B.6',
+    generate: (rng) => {
+      const m = randInt(-5, 5, rng);
+      const b = randInt(-10, 10, rng);
+      const bStr = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
+      return { display: `y = ${m}x ${bStr}, slope=?`, answer: m, template: '68-slope-from-equation' };
+    }
+  },
+
+  '68-y-intercept': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'linear',
+    standard: 'CCSS.8.F.A.3',
+    generate: (rng) => {
+      const m = randInt(-5, 5, rng);
+      const b = randInt(-10, 10, rng);
+      const bStr = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
+      return { display: `y = ${m}x ${bStr}, y-intercept=?`, answer: b, template: '68-y-intercept' };
+    }
+  },
+
+  '68-find-y': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'linear',
+    standard: 'CCSS.8.F.A.1',
+    generate: (rng) => {
+      const m = randInt(1, 5, rng);
+      const b = randInt(0, 10, rng);
+      const x = randInt(1, 5, rng);
+      return { display: `y = ${m}x + ${b}, x=${x}, y=?`, answer: m * x + b, template: '68-find-y' };
+    }
+  },
+
+  '68-find-x': {
+    grade: '6-8',
+    difficulty: 6,
+    skill: 'linear',
+    standard: 'CCSS.8.F.A.1',
+    generate: (rng) => {
+      const m = randInt(2, 5, rng);
+      const b = randInt(0, 10, rng);
+      const x = randInt(1, 5, rng);
+      const y = m * x + b;
+      return { display: `y = ${m}x + ${b}, y=${y}, x=?`, answer: x, template: '68-find-x' };
+    }
+  },
+
+  // 6-8: Surface Area and Volume (3D)
+  '68-volume-cylinder': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'volume',
+    standard: 'CCSS.8.G.C.9',
+    generate: (rng) => {
+      const r = randInt(2, 5, rng);
+      const h = randInt(2, 6, rng);
+      // V = πr²h, use π≈3.14, round to nearest integer
+      const v = Math.round(3.14 * r * r * h);
+      return { display: `Cylinder: r=${r}, h=${h}, V≈? (π≈3.14)`, answer: v, template: '68-volume-cylinder' };
+    }
+  },
+
+  '68-volume-cone': {
+    grade: '6-8',
+    difficulty: 6,
+    skill: 'volume',
+    standard: 'CCSS.8.G.C.9',
+    generate: (rng) => {
+      const r = randInt(2, 4, rng);
+      const h = randInt(3, 9, rng);
+      // V = (1/3)πr²h
+      const v = Math.round(3.14 * r * r * h / 3);
+      return { display: `Cone: r=${r}, h=${h}, V≈? (π≈3.14)`, answer: v, template: '68-volume-cone' };
+    }
+  },
+
+  '68-volume-sphere': {
+    grade: '6-8',
+    difficulty: 6,
+    skill: 'volume',
+    standard: 'CCSS.8.G.C.9',
+    generate: (rng) => {
+      const r = randInt(2, 4, rng);
+      // V = (4/3)πr³
+      const v = Math.round(4 * 3.14 * r * r * r / 3);
+      return { display: `Sphere: r=${r}, V≈? (π≈3.14)`, answer: v, template: '68-volume-sphere' };
+    }
+  },
+
+  '68-surface-area-cube': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'surface-area',
+    standard: 'CCSS.7.G.B.6',
+    generate: (rng) => {
+      const s = randInt(2, 8, rng);
+      return { display: `Cube surface area: s=${s}`, answer: 6 * s * s, template: '68-surface-area-cube' };
+    }
+  },
+
+  '68-surface-area-box': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'surface-area',
+    standard: 'CCSS.7.G.B.6',
+    generate: (rng) => {
+      const l = randInt(2, 5, rng);
+      const w = randInt(2, 4, rng);
+      const h = randInt(2, 4, rng);
+      const sa = 2 * (l * w + l * h + w * h);
+      return { display: `Box SA: ${l}×${w}×${h}`, answer: sa, template: '68-surface-area-box' };
+    }
+  },
+
+  // 6-8: Unit Conversions (Advanced)
+  '68-convert-miles-feet': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'conversions',
+    standard: 'CCSS.6.RP.A.3',
+    generate: (rng) => {
+      const miles = randInt(1, 3, rng);
+      return { display: `${miles} mile(s) = ? feet`, answer: miles * 5280, template: '68-convert-miles-feet' };
+    }
+  },
+
+  '68-convert-km-m': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'conversions',
+    standard: 'CCSS.6.RP.A.3',
+    generate: (rng) => {
+      const km = randInt(1, 10, rng);
+      return { display: `${km} km = ? m`, answer: km * 1000, template: '68-convert-km-m' };
+    }
+  },
+
+  '68-convert-oz-lb': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'conversions',
+    standard: 'CCSS.6.RP.A.3',
+    generate: (rng) => {
+      const lb = randInt(1, 8, rng);
+      return { display: `${lb} lb = ? oz`, answer: lb * 16, template: '68-convert-oz-lb' };
+    }
+  },
+
+  '68-convert-cups-pints': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'conversions',
+    standard: 'CCSS.6.RP.A.3',
+    generate: (rng) => {
+      const pints = randInt(1, 8, rng);
+      return { display: `${pints} pints = ? cups`, answer: pints * 2, template: '68-convert-cups-pints' };
+    }
+  },
+
+  '68-convert-quarts-gallons': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'conversions',
+    standard: 'CCSS.6.RP.A.3',
+    generate: (rng) => {
+      const gallons = randInt(1, 6, rng);
+      return { display: `${gallons} gallons = ? quarts`, answer: gallons * 4, template: '68-convert-quarts-gallons' };
+    }
+  },
+
+  '68-speed-distance-time': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'rates',
+    standard: 'CCSS.6.RP.A.3',
+    generate: (rng) => {
+      const speed = randInt(20, 60, rng);
+      const time = randInt(2, 5, rng);
+      return { display: `${speed} mph × ${time} hours = ? miles`, answer: speed * time, template: '68-speed-distance-time' };
+    }
+  },
+
+  '68-unit-rate-complex': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'rates',
+    standard: 'CCSS.6.RP.A.3',
+    generate: (rng) => {
+      const rate = randInt(2, 8, rng);
+      const total = rate * randInt(3, 10, rng);
+      const items = total / rate;
+      return { display: `$${total} for ${items} items = $? each`, answer: rate, template: '68-unit-rate-complex' };
     }
   }
 };
