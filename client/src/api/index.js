@@ -80,3 +80,14 @@ export const challenges = {
   start: (id, classroomId) => request(`/challenges/${id}/start`, { method: 'POST', body: JSON.stringify({ classroomId }) }),
   results: (id) => request(`/challenges/${id}/results`)
 };
+
+// Merchandise Store
+export const merchandise = {
+  categories: () => request('/merchandise/categories'),
+  products: (category) => request(`/merchandise/products${category ? `?category=${encodeURIComponent(category)}` : ''}`),
+  product: (id) => request(`/merchandise/products/${id}`),
+  createOrder: (data) => request('/merchandise/orders', { method: 'POST', body: JSON.stringify(data) }),
+  confirmOrder: (id) => request(`/merchandise/orders/${id}/confirm`, { method: 'POST' }),
+  orders: () => request('/merchandise/orders'),
+  order: (id) => request(`/merchandise/orders/${id}`)
+};

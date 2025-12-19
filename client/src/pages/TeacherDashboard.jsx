@@ -3,6 +3,7 @@ import { classrooms, heats, analytics, subscriptions, challenges } from '../api/
 import { HeatResults } from '../components/HeatResults.jsx';
 import { StudentAnalytics } from '../components/StudentAnalytics.jsx';
 import { ChallengeMode } from '../components/ChallengeMode.jsx';
+import { MerchandiseStore } from '../components/MerchandiseStore.jsx';
 
 export function TeacherDashboard({ teacher, onLogout }) {
   const [myClassrooms, setMyClassrooms] = useState([]);
@@ -12,7 +13,7 @@ export function TeacherDashboard({ teacher, onLogout }) {
   const [heatResults, setHeatResults] = useState(null);
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState(null);
-  const [activeTab, setActiveTab] = useState('heats'); // 'heats', 'analytics', 'challenges'
+  const [activeTab, setActiveTab] = useState('heats'); // 'heats', 'analytics', 'challenges', 'shop'
   const [selectedStudent, setSelectedStudent] = useState(null);
 
   useEffect(() => {
@@ -261,6 +262,12 @@ export function TeacherDashboard({ teacher, onLogout }) {
               >
                 Class vs Class {!isPro && '(Pro)'}
               </button>
+              <button
+                class={`btn ${activeTab === 'shop' ? 'btn-primary' : 'btn-outline'}`}
+                onClick={() => setActiveTab('shop')}
+              >
+                Shop
+              </button>
             </div>
 
             {/* Tab Content */}
@@ -374,6 +381,10 @@ export function TeacherDashboard({ teacher, onLogout }) {
                   console.log('Start challenge', challengeId);
                 }}
               />
+            )}
+
+            {activeTab === 'shop' && (
+              <MerchandiseStore />
             )}
           </div>
         ) : (

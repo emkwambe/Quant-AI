@@ -12,6 +12,7 @@ import heatRoutes from './routes/heats.js';
 import analyticsRoutes from './routes/analytics.js';
 import subscriptionRoutes from './routes/subscriptions.js';
 import challengeRoutes from './routes/challenges.js';
+import merchandiseRoutes from './routes/merchandise.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -44,6 +45,7 @@ app.use('/api/heats', heatRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/challenges', challengeRoutes);
+app.use('/api/merchandise', merchandiseRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
