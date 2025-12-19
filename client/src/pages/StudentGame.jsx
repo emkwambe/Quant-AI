@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { heats } from '../api/index.js';
 import { getFlag } from '../utils/countries.js';
+import { Logo } from '../components/Logo.jsx';
 
 export function StudentGame({ student, onLeave }) {
   const [gameState, setGameState] = useState('waiting'); // 'waiting', 'playing', 'results'
@@ -126,8 +127,8 @@ export function StudentGame({ student, onLeave }) {
     return (
       <div class="container" style={{ paddingTop: '4rem' }}>
         <div class="card text-center">
-          <h1 class="mb-2" style={{ color: 'var(--primary)' }}>MATHATHLON</h1>
-          <p class="text-light mb-3">Hi, {student.display_name}!</p>
+          <div class="mb-2"><Logo size="medium" variant="gradient" /></div>
+          <p class="text-light mb-3">Hi, {student.display_name}! {getFlag(student.country_code)}</p>
           <p class="text-light">Class: {student.classroom_name}</p>
 
           <div class="mt-4">
