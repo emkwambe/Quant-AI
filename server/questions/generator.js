@@ -1259,6 +1259,302 @@ const templates = {
   },
 
   // ============================================
+  // TIER 1: ORDER OF OPERATIONS - DEEP MASTERY
+  // (Grouping symbols, nested expressions, PEMDAS)
+  // ============================================
+
+  '35-parentheses-simple': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'order-of-operations',
+    standard: 'CCSS.5.OA.A.1',
+    generate: (rng) => {
+      const a = randInt(2, 6, rng);
+      const b = randInt(2, 6, rng);
+      const c = randInt(2, 4, rng);
+      // (a + b) × c - parentheses change the result
+      return { display: `(${a} + ${b}) × ${c}`, answer: (a + b) * c, template: '35-parentheses-simple' };
+    }
+  },
+
+  '35-parentheses-subtract': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'order-of-operations',
+    standard: 'CCSS.5.OA.A.1',
+    generate: (rng) => {
+      const a = randInt(10, 20, rng);
+      const b = randInt(2, 5, rng);
+      const c = randInt(1, b - 1, rng);
+      return { display: `${a} - (${b} - ${c})`, answer: a - (b - c), template: '35-parentheses-subtract' };
+    }
+  },
+
+  '35-parentheses-vs-no': {
+    grade: '3-5',
+    difficulty: 4,
+    skill: 'order-of-operations',
+    standard: 'CCSS.5.OA.A.1',
+    generate: (rng) => {
+      const a = randInt(2, 5, rng);
+      const b = randInt(2, 5, rng);
+      const c = randInt(2, 4, rng);
+      // Compare: a + b × c vs (a + b) × c - answer is the DIFFERENCE
+      const withoutParen = a + b * c;
+      const withParen = (a + b) * c;
+      return { display: `(${a}+${b})×${c} minus ${a}+${b}×${c} = ?`, answer: withParen - withoutParen, template: '35-parentheses-vs-no' };
+    }
+  },
+
+  '35-nested-parentheses': {
+    grade: '3-5',
+    difficulty: 5,
+    skill: 'order-of-operations',
+    standard: 'CCSS.5.OA.A.1',
+    generate: (rng) => {
+      const a = randInt(2, 4, rng);
+      const b = randInt(1, 4, rng);
+      const c = randInt(1, 3, rng);
+      const d = randInt(2, 3, rng);
+      // a × (b + (c + d))
+      return { display: `${a} × (${b} + (${c} + ${d}))`, answer: a * (b + (c + d)), template: '35-nested-parentheses' };
+    }
+  },
+
+  // ============================================
+  // TIER 1: PROPERTIES OF OPERATIONS
+  // (Commutative, Associative, Distributive, Identity, Inverse)
+  // ============================================
+
+  '35-commutative-add': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'properties',
+    standard: 'CCSS.3.OA.B.5',
+    generate: (rng) => {
+      const a = randInt(12, 35, rng);
+      const b = randInt(10, 30, rng);
+      // If a + b = 47, then b + a = ?
+      return { display: `If ${a}+${b}=${a + b}, then ${b}+${a}=?`, answer: a + b, template: '35-commutative-add' };
+    }
+  },
+
+  '35-commutative-mult': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'properties',
+    standard: 'CCSS.3.OA.B.5',
+    generate: (rng) => {
+      const a = randInt(3, 9, rng);
+      const b = randInt(4, 12, rng);
+      return { display: `If ${a}×${b}=${a * b}, then ${b}×${a}=?`, answer: a * b, template: '35-commutative-mult' };
+    }
+  },
+
+  '35-associative-add': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'properties',
+    standard: 'CCSS.3.OA.B.5',
+    generate: (rng) => {
+      const a = randInt(10, 25, rng);
+      const b = randInt(5, 15, rng);
+      const c = randInt(5, 15, rng);
+      // (a + b) + c = a + (b + c)
+      return { display: `(${a}+${b})+${c} = ${a}+(?+${c})`, answer: b, template: '35-associative-add' };
+    }
+  },
+
+  '35-associative-mult': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'properties',
+    standard: 'CCSS.3.OA.B.5',
+    generate: (rng) => {
+      const a = randInt(2, 5, rng);
+      const b = randInt(2, 5, rng);
+      const c = randInt(2, 4, rng);
+      return { display: `(${a}×${b})×${c} = ${a}×(?×${c})`, answer: b, template: '35-associative-mult' };
+    }
+  },
+
+  '35-identity-add': {
+    grade: '3-5',
+    difficulty: 1,
+    skill: 'properties',
+    standard: 'CCSS.3.OA.B.5',
+    generate: (rng) => {
+      const a = randInt(15, 99, rng);
+      return { display: `${a} + 0 = ?`, answer: a, template: '35-identity-add' };
+    }
+  },
+
+  '35-identity-mult': {
+    grade: '3-5',
+    difficulty: 1,
+    skill: 'properties',
+    standard: 'CCSS.3.OA.B.5',
+    generate: (rng) => {
+      const a = randInt(15, 99, rng);
+      return { display: `${a} × 1 = ?`, answer: a, template: '35-identity-mult' };
+    }
+  },
+
+  '35-zero-property': {
+    grade: '3-5',
+    difficulty: 1,
+    skill: 'properties',
+    standard: 'CCSS.3.OA.B.5',
+    generate: (rng) => {
+      const a = randInt(25, 150, rng);
+      return { display: `${a} × 0 = ?`, answer: 0, template: '35-zero-property' };
+    }
+  },
+
+  '35-distributive-intro': {
+    grade: '3-5',
+    difficulty: 4,
+    skill: 'properties',
+    standard: 'CCSS.3.OA.B.5',
+    generate: (rng) => {
+      const a = randInt(2, 5, rng);
+      const b = randInt(5, 10, rng);
+      const c = randInt(1, 5, rng);
+      // a × (b + c) = a×b + a×c
+      return { display: `${a}×(${b}+${c}) = ${a}×${b} + ${a}×?`, answer: c, template: '35-distributive-intro' };
+    }
+  },
+
+  // ============================================
+  // TIER 1: EQUIVALENT REPRESENTATIONS
+  // (Fraction ↔ Decimal ↔ Percent conversions)
+  // ============================================
+
+  '35-frac-to-percent-halves': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'conversions',
+    standard: 'CCSS.4.NF.C.6',
+    generate: (rng) => {
+      const fracs = [
+        { n: 1, d: 2, p: 50 },
+        { n: 1, d: 4, p: 25 },
+        { n: 3, d: 4, p: 75 },
+        { n: 1, d: 5, p: 20 },
+        { n: 2, d: 5, p: 40 },
+        { n: 3, d: 5, p: 60 },
+        { n: 4, d: 5, p: 80 }
+      ];
+      const f = pickOne(fracs, rng);
+      return { display: `${f.n}/${f.d} = ?%`, answer: f.p, template: '35-frac-to-percent-halves' };
+    }
+  },
+
+  '35-percent-to-decimal': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'conversions',
+    standard: 'CCSS.4.NF.C.6',
+    generate: (rng) => {
+      const percent = pickOne([10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90], rng);
+      // Answer as integer representing hundredths: 25% = 25 (meaning 0.25)
+      return { display: `${percent}% = 0.? (as hundredths)`, answer: percent, template: '35-percent-to-decimal' };
+    }
+  },
+
+  '35-decimal-to-percent': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'conversions',
+    standard: 'CCSS.4.NF.C.6',
+    generate: (rng) => {
+      const percent = pickOne([10, 20, 25, 30, 40, 50, 60, 70, 75, 80], rng);
+      const decimal = percent / 100;
+      return { display: `${decimal.toFixed(2)} = ?%`, answer: percent, template: '35-decimal-to-percent' };
+    }
+  },
+
+  '35-frac-dec-equiv': {
+    grade: '3-5',
+    difficulty: 4,
+    skill: 'conversions',
+    standard: 'CCSS.4.NF.C.6',
+    generate: (rng) => {
+      // Known fraction-decimal pairs with clear right/wrong options
+      const pairs = [
+        { n: 1, d: 2, correct: '0.5', wrong: '0.2' },
+        { n: 1, d: 4, correct: '0.25', wrong: '0.4' },
+        { n: 3, d: 4, correct: '0.75', wrong: '0.34' },
+        { n: 1, d: 5, correct: '0.2', wrong: '0.5' },
+        { n: 2, d: 5, correct: '0.4', wrong: '0.25' }
+      ];
+      const p = pickOne(pairs, rng);
+      const isCorrect = randInt(0, 1, rng);
+      const shown = isCorrect ? p.correct : p.wrong;
+      return { display: `${p.n}/${p.d} = ${shown}? (1=yes, 0=no)`, answer: isCorrect, template: '35-frac-dec-equiv' };
+    }
+  },
+
+  // ============================================
+  // TIER 1: ESTIMATION & REASONABLENESS
+  // (Mental math, checking answers)
+  // ============================================
+
+  '35-estimate-sum': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'estimation',
+    standard: 'CCSS.3.NBT.A.1',
+    generate: (rng) => {
+      const a = randInt(2, 8, rng) * 10 + randInt(1, 9, rng);
+      const b = randInt(2, 8, rng) * 10 + randInt(1, 9, rng);
+      const rounded = Math.round(a / 10) * 10 + Math.round(b / 10) * 10;
+      return { display: `Estimate: ${a} + ${b} ≈ ?`, answer: rounded, template: '35-estimate-sum' };
+    }
+  },
+
+  '35-estimate-diff': {
+    grade: '3-5',
+    difficulty: 2,
+    skill: 'estimation',
+    standard: 'CCSS.3.NBT.A.1',
+    generate: (rng) => {
+      const a = randInt(5, 9, rng) * 10 + randInt(1, 9, rng);
+      const b = randInt(2, 4, rng) * 10 + randInt(1, 9, rng);
+      const rounded = Math.round(a / 10) * 10 - Math.round(b / 10) * 10;
+      return { display: `Estimate: ${a} - ${b} ≈ ?`, answer: rounded, template: '35-estimate-diff' };
+    }
+  },
+
+  '35-estimate-product': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'estimation',
+    standard: 'CCSS.4.NBT.B.5',
+    generate: (rng) => {
+      const a = randInt(2, 8, rng) * 10 + randInt(1, 9, rng);
+      const b = randInt(2, 6, rng);
+      const rounded = Math.round(a / 10) * 10 * b;
+      return { display: `Estimate: ${a} × ${b} ≈ ?`, answer: rounded, template: '35-estimate-product' };
+    }
+  },
+
+  '35-reasonable-answer': {
+    grade: '3-5',
+    difficulty: 3,
+    skill: 'estimation',
+    standard: 'CCSS.4.OA.A.3',
+    generate: (rng) => {
+      const a = randInt(20, 50, rng);
+      const b = randInt(20, 50, rng);
+      const correct = a + b;
+      const isReasonable = randInt(0, 1, rng);
+      const shown = isReasonable ? correct : correct + randInt(1, 5, rng) * 100;
+      return { display: `${a}+${b}=${shown}. Reasonable? (1=yes, 0=no)`, answer: isReasonable, template: '35-reasonable-answer' };
+    }
+  },
+
+  // ============================================
   // GRADES 6-8 (Pre-Algebra, Integers, Ratios)
   // ============================================
 
@@ -2153,6 +2449,651 @@ const templates = {
       const total = rate * randInt(3, 10, rng);
       const items = total / rate;
       return { display: `$${total} for ${items} items = $? each`, answer: rate, template: '68-unit-rate-complex' };
+    }
+  },
+
+  // ============================================
+  // TIER 1 (6-8): NUMBER LINE & INTEGERS DEEP
+  // (Visual understanding, sign rules WHY they work)
+  // ============================================
+
+  '68-number-line-position': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'integers',
+    standard: 'CCSS.6.NS.C.6',
+    generate: (rng) => {
+      const a = randInt(-10, 10, rng);
+      const direction = pickOne(['left', 'right'], rng);
+      const steps = randInt(2, 6, rng);
+      const answer = direction === 'right' ? a + steps : a - steps;
+      return { display: `Start at ${a}, move ${steps} ${direction}: ?`, answer, template: '68-number-line-position' };
+    }
+  },
+
+  '68-distance-on-line': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'integers',
+    standard: 'CCSS.6.NS.C.7',
+    generate: (rng) => {
+      const a = randInt(-10, 5, rng);
+      const b = randInt(a + 2, 10, rng);
+      return { display: `Distance from ${a} to ${b} on number line?`, answer: Math.abs(b - a), template: '68-distance-on-line' };
+    }
+  },
+
+  '68-negative-sign-rule-mult': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'integers',
+    standard: 'CCSS.7.NS.A.2',
+    generate: (rng) => {
+      // Test understanding: neg × neg = pos, neg × pos = neg
+      const type = randInt(0, 2, rng);
+      if (type === 0) {
+        // neg × neg = ?
+        return { display: `negative × negative = ? (1=pos, 0=neg)`, answer: 1, template: '68-negative-sign-rule-mult' };
+      } else if (type === 1) {
+        // neg × pos = ?
+        return { display: `negative × positive = ? (1=pos, 0=neg)`, answer: 0, template: '68-negative-sign-rule-mult' };
+      } else {
+        // pos × neg = ?
+        return { display: `positive × negative = ? (1=pos, 0=neg)`, answer: 0, template: '68-negative-sign-rule-mult' };
+      }
+    }
+  },
+
+  '68-additive-inverse': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'properties',
+    standard: 'CCSS.7.NS.A.1',
+    generate: (rng) => {
+      const a = randInt(-20, 20, rng);
+      if (a === 0) return { display: `0 + ? = 0`, answer: 0, template: '68-additive-inverse' };
+      return { display: `${a} + ? = 0`, answer: -a, template: '68-additive-inverse' };
+    }
+  },
+
+  '68-multiplicative-inverse': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'properties',
+    standard: 'CCSS.7.NS.A.2',
+    generate: (rng) => {
+      // Use simple fractions for integer answers in "reciprocal thinking"
+      const n = pickOne([2, 3, 4, 5, 10], rng);
+      // 1/n × ? = 1 → answer is n
+      return { display: `1/${n} × ? = 1`, answer: n, template: '68-multiplicative-inverse' };
+    }
+  },
+
+  // ============================================
+  // TIER 1 (6-8): ORDER OF OPERATIONS ADVANCED
+  // (Brackets, nested, multiple operations)
+  // ============================================
+
+  '68-pemdas-brackets': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'order-of-operations',
+    standard: 'CCSS.6.EE.A.2',
+    generate: (rng) => {
+      const a = randInt(2, 5, rng);
+      const b = randInt(2, 5, rng);
+      const c = randInt(2, 4, rng);
+      const d = randInt(1, 4, rng);
+      // [a + b] × c - d
+      return { display: `[${a} + ${b}] × ${c} - ${d}`, answer: (a + b) * c - d, template: '68-pemdas-brackets' };
+    }
+  },
+
+  '68-pemdas-nested': {
+    grade: '6-8',
+    difficulty: 6,
+    skill: 'order-of-operations',
+    standard: 'CCSS.6.EE.A.2',
+    generate: (rng) => {
+      const a = randInt(2, 4, rng);
+      const b = randInt(2, 4, rng);
+      const c = randInt(1, 3, rng);
+      const d = randInt(2, 4, rng);
+      // a × [b + (c × d)]
+      return { display: `${a} × [${b} + (${c} × ${d})]`, answer: a * (b + (c * d)), template: '68-pemdas-nested' };
+    }
+  },
+
+  '68-pemdas-exponent': {
+    grade: '6-8',
+    difficulty: 6,
+    skill: 'order-of-operations',
+    standard: 'CCSS.6.EE.A.2',
+    generate: (rng) => {
+      const base = randInt(2, 4, rng);
+      const add = randInt(1, 5, rng);
+      const mult = randInt(2, 3, rng);
+      // base² + add × mult
+      return { display: `${base}² + ${add} × ${mult}`, answer: base * base + add * mult, template: '68-pemdas-exponent' };
+    }
+  },
+
+  // ============================================
+  // TIER 2: ALGEBRA READINESS - EXPRESSIONS
+  // (Evaluate, variables as placeholders)
+  // ============================================
+
+  '68-evaluate-simple': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'algebra',
+    standard: 'CCSS.6.EE.A.2',
+    generate: (rng) => {
+      const coef = randInt(2, 6, rng);
+      const add = randInt(1, 10, rng);
+      const x = randInt(2, 8, rng);
+      return { display: `${coef}x + ${add} when x=${x}`, answer: coef * x + add, template: '68-evaluate-simple' };
+    }
+  },
+
+  '68-evaluate-2vars': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'algebra',
+    standard: 'CCSS.6.EE.A.2',
+    generate: (rng) => {
+      const a = randInt(1, 4, rng);
+      const b = randInt(1, 4, rng);
+      const x = randInt(2, 5, rng);
+      const y = randInt(2, 5, rng);
+      return { display: `${a}x + ${b}y when x=${x}, y=${y}`, answer: a * x + b * y, template: '68-evaluate-2vars' };
+    }
+  },
+
+  '68-evaluate-squared': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'algebra',
+    standard: 'CCSS.6.EE.A.2',
+    generate: (rng) => {
+      const add = randInt(1, 5, rng);
+      const n = randInt(2, 6, rng);
+      return { display: `n² + ${add} when n=${n}`, answer: n * n + add, template: '68-evaluate-squared' };
+    }
+  },
+
+  '68-variable-pattern': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'algebra',
+    standard: 'CCSS.6.EE.B.6',
+    generate: (rng) => {
+      // Pattern: input × 3 + 2 = output. Given input, find output
+      const mult = randInt(2, 4, rng);
+      const add = randInt(1, 5, rng);
+      const input = randInt(3, 8, rng);
+      return { display: `Rule: n×${mult}+${add}. n=${input}, result=?`, answer: input * mult + add, template: '68-variable-pattern' };
+    }
+  },
+
+  // ============================================
+  // TIER 2: EQUALITY & BALANCE CONCEPT
+  // (Foundation for algebraic manipulation)
+  // ============================================
+
+  '68-balance-add': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'algebra',
+    standard: 'CCSS.6.EE.B.7',
+    generate: (rng) => {
+      const x = randInt(3, 12, rng);
+      const sub = randInt(2, 8, rng);
+      // x - sub = (some value) → add sub to both sides
+      const result = x - sub;
+      return { display: `x - ${sub} = ${result}. Add ${sub} to both sides: x = ?`, answer: x, template: '68-balance-add' };
+    }
+  },
+
+  '68-balance-subtract': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'algebra',
+    standard: 'CCSS.6.EE.B.7',
+    generate: (rng) => {
+      const x = randInt(5, 15, rng);
+      const add = randInt(2, 8, rng);
+      const result = x + add;
+      return { display: `x + ${add} = ${result}. Subtract ${add} from both sides: x = ?`, answer: x, template: '68-balance-subtract' };
+    }
+  },
+
+  '68-balance-divide': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'algebra',
+    standard: 'CCSS.6.EE.B.7',
+    generate: (rng) => {
+      const x = randInt(2, 10, rng);
+      const mult = randInt(2, 6, rng);
+      const result = x * mult;
+      return { display: `${mult}x = ${result}. Divide both sides by ${mult}: x = ?`, answer: x, template: '68-balance-divide' };
+    }
+  },
+
+  '68-inverse-operation': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'algebra',
+    standard: 'CCSS.6.EE.B.7',
+    generate: (rng) => {
+      // What's the inverse? +→-, ×→÷
+      const ops = [
+        { op: '+', inv: '-', code: 1 },
+        { op: '-', inv: '+', code: 2 },
+        { op: '×', inv: '÷', code: 3 },
+        { op: '÷', inv: '×', code: 4 }
+      ];
+      const chosen = pickOne(ops, rng);
+      return { display: `Inverse of ${chosen.op}? (1=−, 2=+, 3=÷, 4=×)`, answer: chosen.code, template: '68-inverse-operation' };
+    }
+  },
+
+  // ============================================
+  // TIER 2: COMBINING LIKE TERMS (DEEP)
+  // (Structural thinking for simplification)
+  // ============================================
+
+  '68-combine-like-2types': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'algebra',
+    standard: 'CCSS.7.EE.A.1',
+    generate: (rng) => {
+      const ax = randInt(2, 6, rng);
+      const ay = randInt(1, 5, rng);
+      const bx = randInt(1, 5, rng);
+      const by = randInt(1, 5, rng);
+      // ax·x + ay·y + bx·x + by·y → answer is coefficient of x
+      return { display: `${ax}x + ${ay}y + ${bx}x + ${by}y = ?x + ${ay + by}y`, answer: ax + bx, template: '68-combine-like-2types' };
+    }
+  },
+
+  '68-combine-with-negatives': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'algebra',
+    standard: 'CCSS.7.EE.A.1',
+    generate: (rng) => {
+      const a = randInt(3, 8, rng);
+      const b = randInt(1, a - 1, rng);
+      // ax - bx = ?x
+      return { display: `${a}x - ${b}x = ?x`, answer: a - b, template: '68-combine-with-negatives' };
+    }
+  },
+
+  '68-identify-like-terms': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'algebra',
+    standard: 'CCSS.7.EE.A.1',
+    generate: (rng) => {
+      // Are 3x and 5x like terms? Are 3x and 3y like terms?
+      const isLike = randInt(0, 1, rng);
+      if (isLike) {
+        const a = randInt(2, 6, rng);
+        const b = randInt(2, 6, rng);
+        return { display: `Are ${a}x and ${b}x like terms? (1=yes, 0=no)`, answer: 1, template: '68-identify-like-terms' };
+      } else {
+        const a = randInt(2, 6, rng);
+        const b = randInt(2, 6, rng);
+        return { display: `Are ${a}x and ${b}y like terms? (1=yes, 0=no)`, answer: 0, template: '68-identify-like-terms' };
+      }
+    }
+  },
+
+  // ============================================
+  // TIER 2: DISTRIBUTIVE PROPERTY (DEEP MASTERY)
+  // (Area model, factoring foundation)
+  // ============================================
+
+  '68-distribute-subtract': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'algebra',
+    standard: 'CCSS.7.EE.A.1',
+    generate: (rng) => {
+      const a = randInt(2, 5, rng);
+      const b = randInt(5, 12, rng);
+      const c = randInt(1, 4, rng);
+      // a(b - c) = ?
+      return { display: `${a}(${b} - ${c})`, answer: a * (b - c), template: '68-distribute-subtract' };
+    }
+  },
+
+  '68-distribute-negative': {
+    grade: '6-8',
+    difficulty: 6,
+    skill: 'algebra',
+    standard: 'CCSS.7.EE.A.1',
+    generate: (rng) => {
+      const a = randInt(2, 4, rng);
+      const b = randInt(2, 6, rng);
+      const c = randInt(1, 5, rng);
+      // -a(b + c) = ?
+      return { display: `-${a}(${b} + ${c})`, answer: -a * (b + c), template: '68-distribute-negative' };
+    }
+  },
+
+  '68-factor-gcf': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'algebra',
+    standard: 'CCSS.7.EE.A.1',
+    generate: (rng) => {
+      const gcf = randInt(2, 5, rng);
+      const a = randInt(2, 6, rng);
+      const b = randInt(2, 6, rng);
+      // gcf×a + gcf×b = gcf(a + b), answer is gcf
+      return { display: `${gcf * a} + ${gcf * b} = ?(${a} + ${b})`, answer: gcf, template: '68-factor-gcf' };
+    }
+  },
+
+  '68-area-model': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'algebra',
+    standard: 'CCSS.7.EE.A.1',
+    generate: (rng) => {
+      const width = randInt(2, 5, rng);
+      const part1 = randInt(5, 10, rng);
+      const part2 = randInt(2, 5, rng);
+      // Rectangle width × (part1 + part2) = width×part1 + width×part2
+      const total = width * (part1 + part2);
+      return { display: `Rectangle: width=${width}, length=${part1}+${part2}. Area=?`, answer: total, template: '68-area-model' };
+    }
+  },
+
+  // ============================================
+  // TIER 3: PROPORTIONAL RELATIONSHIPS
+  // (Constant of proportionality, y=kx)
+  // ============================================
+
+  '68-constant-of-prop': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'proportions',
+    standard: 'CCSS.7.RP.A.2',
+    generate: (rng) => {
+      const k = randInt(2, 8, rng);
+      const x = randInt(2, 6, rng);
+      const y = k * x;
+      return { display: `y=${y} when x=${x}. If y=kx, then k=?`, answer: k, template: '68-constant-of-prop' };
+    }
+  },
+
+  '68-is-proportional': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'proportions',
+    standard: 'CCSS.7.RP.A.2',
+    generate: (rng) => {
+      const isProp = randInt(0, 1, rng);
+      const k = randInt(2, 5, rng);
+      const x1 = 2, x2 = 4;
+      const y1 = k * x1;
+      const y2 = isProp ? k * x2 : k * x2 + randInt(1, 3, rng);
+      return { display: `(${x1},${y1}) and (${x2},${y2}): proportional? (1=yes, 0=no)`, answer: isProp, template: '68-is-proportional' };
+    }
+  },
+
+  '68-y-equals-kx': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'proportions',
+    standard: 'CCSS.7.RP.A.2',
+    generate: (rng) => {
+      const k = randInt(2, 6, rng);
+      const x = randInt(3, 10, rng);
+      return { display: `y = ${k}x. When x=${x}, y=?`, answer: k * x, template: '68-y-equals-kx' };
+    }
+  },
+
+  '68-multiplicative-vs-additive': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'proportions',
+    standard: 'CCSS.7.RP.A.2',
+    generate: (rng) => {
+      const original = randInt(5, 12, rng);
+      const mult = randInt(2, 4, rng);
+      const scaled = original * mult;
+      // Is this multiplicative (×) or additive (+)?
+      const diff = scaled - original;
+      return { display: `${original}→${scaled}: multiplied by ? (not added)`, answer: mult, template: '68-multiplicative-vs-additive' };
+    }
+  },
+
+  // ============================================
+  // TIER 4: ANGLE RELATIONSHIPS
+  // (Complementary, Supplementary, Linear Pairs)
+  // ============================================
+
+  '68-complementary': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'geometry',
+    standard: 'CCSS.7.G.B.5',
+    generate: (rng) => {
+      const angle = randInt(15, 75, rng);
+      return { display: `Complement of ${angle}°?`, answer: 90 - angle, template: '68-complementary' };
+    }
+  },
+
+  '68-supplementary': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'geometry',
+    standard: 'CCSS.7.G.B.5',
+    generate: (rng) => {
+      const angle = randInt(30, 150, rng);
+      return { display: `Supplement of ${angle}°?`, answer: 180 - angle, template: '68-supplementary' };
+    }
+  },
+
+  '68-angles-on-line': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'geometry',
+    standard: 'CCSS.7.G.B.5',
+    generate: (rng) => {
+      const angle1 = randInt(40, 100, rng);
+      const angle2 = randInt(20, 180 - angle1 - 10, rng);
+      const angle3 = 180 - angle1 - angle2;
+      return { display: `Angles on line: ${angle1}° + ${angle2}° + ?° = 180°`, answer: angle3, template: '68-angles-on-line' };
+    }
+  },
+
+  '68-vertical-angles': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'geometry',
+    standard: 'CCSS.7.G.B.5',
+    generate: (rng) => {
+      const angle = randInt(25, 155, rng);
+      return { display: `Vertical angle to ${angle}°?`, answer: angle, template: '68-vertical-angles' };
+    }
+  },
+
+  // ============================================
+  // TIER 6: MATHEMATICAL LANGUAGE PRECISION
+  // (Word→Math translation, key phrases)
+  // ============================================
+
+  '68-word-more-than': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'translation',
+    standard: 'CCSS.6.EE.A.2',
+    generate: (rng) => {
+      const n = randInt(3, 12, rng);
+      const more = randInt(2, 8, rng);
+      // "5 more than 7" = 12
+      return { display: `${more} more than ${n} = ?`, answer: n + more, template: '68-word-more-than' };
+    }
+  },
+
+  '68-word-less-than': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'translation',
+    standard: 'CCSS.6.EE.A.2',
+    generate: (rng) => {
+      const n = randInt(10, 25, rng);
+      const less = randInt(2, n - 2, rng);
+      // "5 less than 12" = 7 (NOT 12-5, it's n-less)
+      return { display: `${less} less than ${n} = ?`, answer: n - less, template: '68-word-less-than' };
+    }
+  },
+
+  '68-word-times-as-many': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'translation',
+    standard: 'CCSS.6.EE.A.2',
+    generate: (rng) => {
+      const n = randInt(3, 8, rng);
+      const times = randInt(2, 5, rng);
+      return { display: `${times} times as many as ${n} = ?`, answer: n * times, template: '68-word-times-as-many' };
+    }
+  },
+
+  '68-word-of-means-mult': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'translation',
+    standard: 'CCSS.6.EE.A.2',
+    generate: (rng) => {
+      const frac = pickOne([
+        { n: 1, d: 2 },
+        { n: 1, d: 3 },
+        { n: 1, d: 4 },
+        { n: 2, d: 3 },
+        { n: 3, d: 4 }
+      ], rng);
+      const whole = frac.d * randInt(2, 5, rng);
+      return { display: `${frac.n}/${frac.d} of ${whole} = ?`, answer: (frac.n / frac.d) * whole, template: '68-word-of-means-mult' };
+    }
+  },
+
+  '68-word-per-means-divide': {
+    grade: '6-8',
+    difficulty: 4,
+    skill: 'translation',
+    standard: 'CCSS.6.RP.A.2',
+    generate: (rng) => {
+      const rate = randInt(3, 10, rng);
+      const count = randInt(3, 8, rng);
+      const total = rate * count;
+      return { display: `${total} items for ${count} people = ? per person`, answer: rate, template: '68-word-per-means-divide' };
+    }
+  },
+
+  // ============================================
+  // TIER 6: MULTI-STEP WORD PROBLEMS
+  // (Decomposition, strategic thinking)
+  // ============================================
+
+  '68-multistep-buy': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'word-problems',
+    standard: 'CCSS.7.EE.B.3',
+    generate: (rng) => {
+      const priceEach = randInt(3, 8, rng);
+      const qty = randInt(3, 6, rng);
+      const paid = priceEach * qty + randInt(5, 20, rng);
+      const change = paid - priceEach * qty;
+      return { display: `Buy ${qty} items at $${priceEach} each. Pay $${paid}. Change=?`, answer: change, template: '68-multistep-buy' };
+    }
+  },
+
+  '68-multistep-distance': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'word-problems',
+    standard: 'CCSS.7.EE.B.3',
+    generate: (rng) => {
+      const speed = randInt(30, 60, rng);
+      const time = randInt(2, 4, rng);
+      const extra = randInt(10, 30, rng);
+      // Traveled speed×time + walked extra more
+      return { display: `Drive ${speed}mph for ${time}hrs, then walk ${extra}mi. Total=?`, answer: speed * time + extra, template: '68-multistep-distance' };
+    }
+  },
+
+  '68-multistep-share': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'word-problems',
+    standard: 'CCSS.7.EE.B.3',
+    generate: (rng) => {
+      // Ensure integer result: people × perPerson = total
+      const people = randInt(3, 6, rng);
+      const perPerson = randInt(5, 15, rng);
+      const total = people * perPerson;
+      return { display: `${total} items shared by ${people} people = ? each`, answer: perPerson, template: '68-multistep-share' };
+    }
+  },
+
+  // ============================================
+  // TIER 5: DATA & OUTLIERS
+  // (Statistical thinking, sensitivity)
+  // ============================================
+
+  '68-outlier-identify': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'statistics',
+    standard: 'CCSS.6.SP.B.5',
+    generate: (rng) => {
+      const base = randInt(10, 20, rng);
+      const normal = [base, base + 1, base + 2, base - 1, base + 1];
+      const outlier = base + randInt(20, 40, rng);
+      const allNums = [...normal, outlier].sort(() => rng() - 0.5);
+      return { display: `Outlier in ${allNums.join(', ')}?`, answer: outlier, template: '68-outlier-identify' };
+    }
+  },
+
+  '68-outlier-effect-mean': {
+    grade: '6-8',
+    difficulty: 6,
+    skill: 'statistics',
+    standard: 'CCSS.6.SP.B.5',
+    generate: (rng) => {
+      // Without outlier: mean = 10. With outlier 50: mean = ?
+      const mean = randInt(8, 15, rng);
+      const count = 4;
+      const outlier = mean + randInt(20, 40, rng);
+      const total = mean * count + outlier;
+      const newMean = Math.floor(total / (count + 1));
+      return { display: `Mean of 4 nums is ${mean}. Add ${outlier}. New mean≈?`, answer: newMean, template: '68-outlier-effect-mean' };
+    }
+  },
+
+  '68-best-measure': {
+    grade: '6-8',
+    difficulty: 5,
+    skill: 'statistics',
+    standard: 'CCSS.6.SP.B.5',
+    generate: (rng) => {
+      // With outlier, median is better. Without, mean is fine.
+      const hasOutlier = randInt(0, 1, rng);
+      if (hasOutlier) {
+        return { display: `Data with outlier: use mean(1) or median(2)?`, answer: 2, template: '68-best-measure' };
+      } else {
+        return { display: `Symmetric data, no outliers: use mean(1) or median(2)?`, answer: 1, template: '68-best-measure' };
+      }
     }
   }
 };
