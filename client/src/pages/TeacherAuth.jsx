@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
 import { auth } from '../api/index.js';
+import { popularCountries, allCountries, getFlag } from '../utils/countries.js';
 
 export function TeacherAuth({ onSuccess, onBack }) {
   const [mode, setMode] = useState('login');
@@ -10,6 +11,7 @@ export function TeacherAuth({ onSuccess, onBack }) {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [schoolName, setSchoolName] = useState('');
+  const [countryCode, setCountryCode] = useState('US');
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -21,7 +23,7 @@ export function TeacherAuth({ onSuccess, onBack }) {
         const data = await auth.login({ email, password });
         onSuccess(data);
       } else {
-        const data = await auth.signup({ email, password, name, schoolName });
+        const data = await auth.signup({ email, password, name, schoolName, countryCode });
         onSuccess(data);
       }
     } catch (err) {
@@ -66,6 +68,26 @@ export function TeacherAuth({ onSuccess, onBack }) {
                   onInput={(e) => setSchoolName(e.target.value)}
                   placeholder="Lincoln Elementary"
                 />
+              </div>
+
+              <div class="form-group">
+                <label>Country {getFlag(countryCode)}</label>
+                <select
+                  class="form-input"
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                >
+                  <optgroup label="Popular">
+                    {popularCountries.map(c => (
+                      <option key={c.code} value={c.code}>{getFlag(c.code)} {c.name}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="All Countries">
+                    {allCountries.map(c => (
+                      <option key={c.code} value={c.code}>{getFlag(c.code)} {c.name}</option>
+                    ))}
+                  </optgroup>
+                </select>
               </div>
             </>
           )}

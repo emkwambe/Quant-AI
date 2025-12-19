@@ -250,17 +250,20 @@ router.get('/:id/results', (req, res) => {
     return res.status(404).json({ error: 'Heat not found' });
   }
 
-  // Get all student results
+  // Get all student results with country flag
   const results = db.prepare(`
     SELECT
       s.id as student_id,
       s.display_name,
+      t.country_code,
       COUNT(r.id) as total_answered,
       SUM(CASE WHEN r.is_correct THEN 1 ELSE 0 END) as correct_count,
       AVG(r.response_time_ms) as avg_time_ms,
       SUM(CASE WHEN r.is_correct THEN 1 ELSE 0 END) * 100 +
         (10000 - COALESCE(AVG(r.response_time_ms), 10000)) / 100 as score
     FROM students s
+    JOIN classrooms c ON s.classroom_id = c.id
+    JOIN teachers t ON c.teacher_id = t.id
     LEFT JOIN responses r ON s.id = r.student_id AND r.heat_id = ?
     WHERE s.classroom_id = ?
     GROUP BY s.id
@@ -289,6 +292,7 @@ router.get('/:id/results', (req, res) => {
       rank: i + 1,
       studentId: r.student_id,
       displayName: r.display_name,
+      countryCode: r.country_code || 'US',
       correct: r.correct_count || 0,
       total: r.total_answered || 0,
       avgTimeMs: Math.round(r.avg_time_ms || 0),

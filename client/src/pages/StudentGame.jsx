@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { heats } from '../api/index.js';
+import { getFlag } from '../utils/countries.js';
 
 export function StudentGame({ student, onLeave }) {
   const [gameState, setGameState] = useState('waiting'); // 'waiting', 'playing', 'results'
@@ -180,19 +181,28 @@ export function StudentGame({ student, onLeave }) {
             <div class="podium">
               {results.leaderboard[1] && (
                 <div class="podium-place podium-2">
-                  <div class="podium-name">{results.leaderboard[1].displayName}</div>
+                  <div class="podium-name">
+                    <span class="podium-flag">{getFlag(results.leaderboard[1].countryCode)}</span>
+                    {results.leaderboard[1].displayName}
+                  </div>
                   <div class="podium-platform">2</div>
                 </div>
               )}
               {results.leaderboard[0] && (
                 <div class="podium-place podium-1">
-                  <div class="podium-name">{results.leaderboard[0].displayName}</div>
+                  <div class="podium-name">
+                    <span class="podium-flag">{getFlag(results.leaderboard[0].countryCode)}</span>
+                    {results.leaderboard[0].displayName}
+                  </div>
                   <div class="podium-platform">1</div>
                 </div>
               )}
               {results.leaderboard[2] && (
                 <div class="podium-place podium-3">
-                  <div class="podium-name">{results.leaderboard[2].displayName}</div>
+                  <div class="podium-name">
+                    <span class="podium-flag">{getFlag(results.leaderboard[2].countryCode)}</span>
+                    {results.leaderboard[2].displayName}
+                  </div>
                   <div class="podium-platform">3</div>
                 </div>
               )}

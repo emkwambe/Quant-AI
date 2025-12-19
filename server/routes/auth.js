@@ -9,7 +9,7 @@ const SALT_ROUNDS = 10;
 // Teacher signup
 router.post('/signup', async (req, res) => {
   try {
-    const { email, password, name, schoolName } = req.body;
+    const { email, password, name, schoolName, countryCode } = req.body;
 
     if (!email || !password || !name) {
       return res.status(400).json({ error: 'Email, password, and name required' });
@@ -28,9 +28,9 @@ router.post('/signup', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
     const result = db.prepare(`
-      INSERT INTO teachers (email, password_hash, name, school_name)
-      VALUES (?, ?, ?, ?)
-    `).run(email.toLowerCase(), passwordHash, name, schoolName || null);
+      INSERT INTO teachers (email, password_hash, name, school_name, country_code)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(email.toLowerCase(), passwordHash, name, schoolName || null, countryCode || 'US');
 
     // Set cookie for session
     res.cookie('teacherId', result.lastInsertRowid, {
@@ -44,7 +44,8 @@ router.post('/signup', async (req, res) => {
       id: result.lastInsertRowid,
       email: email.toLowerCase(),
       name,
-      schoolName
+      schoolName,
+      countryCode: countryCode || 'US'
     });
   } catch (error) {
     console.error('Signup error:', error);
@@ -85,7 +86,8 @@ router.post('/login', async (req, res) => {
       id: teacher.id,
       email: teacher.email,
       name: teacher.name,
-      schoolName: teacher.school_name
+      schoolName: teacher.school_name,
+      countryCode: teacher.country_code
     });
   } catch (error) {
     console.error('Login error:', error);

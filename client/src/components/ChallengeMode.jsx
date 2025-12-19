@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
 import { challenges } from '../api/index.js';
+import { getFlag } from '../utils/countries.js';
 
 export function ChallengeMode({ classroom, onStartChallenge }) {
   const [view, setView] = useState('list'); // 'list', 'search', 'results'
@@ -109,7 +110,10 @@ export function ChallengeMode({ classroom, onStartChallenge }) {
                   border: team.isWinner ? '2px solid var(--success)' : 'none'
                 }}
               >
-                <h4>{team.classroomName}</h4>
+                <h4>
+                  <span style={{ marginRight: '0.5rem' }}>{getFlag(team.countryCode)}</span>
+                  {team.classroomName}
+                </h4>
                 <p class="text-light">{team.teacherName}</p>
                 <div class="stats mt-2">
                   <div>
@@ -186,7 +190,10 @@ export function ChallengeMode({ classroom, onStartChallenge }) {
               {searchResults.map((c) => (
                 <li key={c.id} class="leaderboard-item">
                   <div>
-                    <strong>{c.name}</strong>
+                    <strong>
+                      <span style={{ marginRight: '0.5rem' }}>{getFlag(c.countryCode)}</span>
+                      {c.name}
+                    </strong>
                     <p class="text-light" style={{ margin: 0, fontSize: '0.875rem' }}>
                       {c.teacherName} • {c.schoolName || 'No school'}
                     </p>

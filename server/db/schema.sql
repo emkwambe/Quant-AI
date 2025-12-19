@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS teachers (
   password_hash TEXT NOT NULL,
   name TEXT NOT NULL,
   school_name TEXT,
+  country_code TEXT DEFAULT 'US',  -- ISO 3166-1 alpha-2 (e.g., US, GB, IN, CA)
   tier TEXT DEFAULT 'free',
   stripe_customer_id TEXT,
   subscription_expires_at DATETIME,

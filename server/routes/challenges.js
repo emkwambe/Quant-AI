@@ -30,7 +30,7 @@ router.get('/search', requireTeacher, requirePro, (req, res) => {
   const classrooms = db.prepare(`
     SELECT
       c.id, c.name, c.grade_level, c.join_code,
-      t.name as teacher_name, t.school_name
+      t.name as teacher_name, t.school_name, t.country_code
     FROM classrooms c
     JOIN teachers t ON c.teacher_id = t.id
     WHERE c.teacher_id != ?
@@ -48,7 +48,8 @@ router.get('/search', requireTeacher, requirePro, (req, res) => {
       gradeLevel: c.grade_level,
       joinCode: c.join_code,
       teacherName: c.teacher_name,
-      schoolName: c.school_name
+      schoolName: c.school_name,
+      countryCode: c.country_code || 'US'
     }))
   });
 });
@@ -268,6 +269,7 @@ router.get('/:id/results', requireTeacher, (req, res) => {
       ch.heat_id,
       c.name as classroom_name,
       t.name as teacher_name,
+      t.country_code,
       (
         SELECT COUNT(*) FROM responses r
         WHERE r.heat_id = ch.heat_id AND r.is_correct = 1
@@ -310,6 +312,7 @@ router.get('/:id/results', requireTeacher, (req, res) => {
       classroomId: h.classroom_id,
       classroomName: h.classroom_name,
       teacherName: h.teacher_name,
+      countryCode: h.country_code || 'US',
       totalCorrect: h.total_correct || 0,
       totalAnswered: h.total_answered || 0,
       participants: h.participants || 0,

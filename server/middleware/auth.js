@@ -11,7 +11,7 @@ export function requireTeacher(req, res, next) {
   }
 
   const teacher = db.prepare(
-    'SELECT id, email, name, school_name FROM teachers WHERE id = ?'
+    'SELECT id, email, name, school_name, country_code FROM teachers WHERE id = ?'
   ).get(teacherId);
 
   if (!teacher) {
@@ -31,9 +31,10 @@ export function requireStudent(req, res, next) {
   }
 
   const student = db.prepare(`
-    SELECT s.id, s.display_name, s.classroom_id, c.name as classroom_name
+    SELECT s.id, s.display_name, s.classroom_id, c.name as classroom_name, t.country_code
     FROM students s
     JOIN classrooms c ON s.classroom_id = c.id
+    JOIN teachers t ON c.teacher_id = t.id
     WHERE s.id = ?
   `).get(studentId);
 

@@ -1,3 +1,5 @@
+import { getFlag } from '../utils/countries.js';
+
 export function HeatResults({ results, onNewHeat, onViewStudent }) {
   const { leaderboard, stats, heat } = results;
 
@@ -30,15 +32,24 @@ export function HeatResults({ results, onNewHeat, onViewStudent }) {
       {leaderboard.length >= 3 && (
         <div class="podium mb-3">
           <div class="podium-place podium-2">
-            <div class="podium-name">{leaderboard[1]?.displayName}</div>
+            <div class="podium-name">
+              <span class="podium-flag">{getFlag(leaderboard[1]?.countryCode)}</span>
+              {leaderboard[1]?.displayName}
+            </div>
             <div class="podium-platform">2</div>
           </div>
           <div class="podium-place podium-1">
-            <div class="podium-name">{leaderboard[0]?.displayName}</div>
+            <div class="podium-name">
+              <span class="podium-flag">{getFlag(leaderboard[0]?.countryCode)}</span>
+              {leaderboard[0]?.displayName}
+            </div>
             <div class="podium-platform">1</div>
           </div>
           <div class="podium-place podium-3">
-            <div class="podium-name">{leaderboard[2]?.displayName}</div>
+            <div class="podium-name">
+              <span class="podium-flag">{getFlag(leaderboard[2]?.countryCode)}</span>
+              {leaderboard[2]?.displayName}
+            </div>
             <div class="podium-platform">3</div>
           </div>
         </div>
@@ -61,6 +72,7 @@ export function HeatResults({ results, onNewHeat, onViewStudent }) {
               style={onViewStudent ? { cursor: 'pointer', textDecoration: 'underline' } : {}}
               onClick={() => onViewStudent && onViewStudent(entry.studentId)}
             >
+              <span style={{ marginRight: '0.5rem' }}>{getFlag(entry.countryCode)}</span>
               {entry.displayName}
             </span>
             <span class="text-light" style={{ marginRight: '1rem' }}>
