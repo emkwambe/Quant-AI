@@ -407,8 +407,13 @@ const templates = {
     skill: 'addition',
     standard: 'CCSS.3.NBT.A.2',
     generate: (rng) => {
-      const a = randInt(11, 44, rng);
-      const b = randInt(11, 55 - a % 10, rng);
+      // Ensure ones digits sum ≤ 9 and tens digits sum ≤ 9
+      const a1 = randInt(1, 4, rng); // tens digit of a
+      const a0 = randInt(1, 4, rng); // ones digit of a
+      const b1 = randInt(1, 9 - a1, rng); // tens digit of b
+      const b0 = randInt(1, 9 - a0, rng); // ones digit of b
+      const a = a1 * 10 + a0;
+      const b = b1 * 10 + b0;
       return { display: `${a} + ${b}`, answer: a + b, template: 'add-2digit-no-carry' };
     }
   },
@@ -419,8 +424,13 @@ const templates = {
     skill: 'subtraction',
     standard: 'CCSS.3.NBT.A.2',
     generate: (rng) => {
-      const a = randInt(50, 99, rng);
-      const b = randInt(10, Math.min(a - 10, 40), rng);
+      // Ensure ones digit of a ≥ ones digit of b (no borrowing)
+      const a1 = randInt(3, 9, rng); // tens digit of a
+      const a0 = randInt(2, 9, rng); // ones digit of a (at least 2 so b0 can be 1+)
+      const b1 = randInt(1, a1 - 1, rng); // tens digit of b < a1
+      const b0 = randInt(1, a0, rng); // ones digit of b ≤ a0
+      const a = a1 * 10 + a0;
+      const b = b1 * 10 + b0;
       return { display: `${a} - ${b}`, answer: a - b, template: 'sub-2digit-no-borrow' };
     }
   },
@@ -694,8 +704,11 @@ const templates = {
     standard: 'CCSS.4.NF.B.3',
     generate: (rng) => {
       const denom = pickOne([4, 5, 6, 8, 10], rng);
-      const a = randInt(1, denom - 2, rng);
-      const b = randInt(1, denom - a - 1, rng);
+      // Ensure sum stays under denom (proper fraction result)
+      const maxA = denom - 2; // leave room for b >= 1
+      const a = randInt(1, maxA, rng);
+      const maxB = denom - a - 1; // sum < denom
+      const b = randInt(1, Math.max(1, maxB), rng); // ensure b >= 1
       return { display: `${a}/${denom} + ${b}/${denom} = ?/${denom}`, answer: a + b, template: 'frac-add-same-denom' };
     }
   },
@@ -816,8 +829,10 @@ const templates = {
     skill: 'decimals',
     standard: 'CCSS.5.NBT.A.2',
     generate: (rng) => {
-      const a = randInt(1, 99, rng) / 10;
-      const answer = a * 10;
+      // Use integer math to avoid floating point issues
+      const aInt = randInt(1, 99, rng);
+      const a = aInt / 10;
+      const answer = aInt; // a * 10 = (aInt/10) * 10 = aInt
       return { display: `${a.toFixed(1)} × 10`, answer, template: 'decimal-mult-10' };
     }
   },
@@ -942,9 +957,10 @@ const templates = {
     standard: 'CCSS.3.MD.A.1',
     generate: (rng) => {
       const hours = randInt(1, 4, rng);
-      const halfHours = randInt(0, 1, rng);
-      const totalMinutes = hours * 60 + halfHours * 30;
-      return { display: `${hours}${halfHours ? ':30' : ''} hours = ? minutes`, answer: totalMinutes, template: 'time-elapsed-30min' };
+      const addHalf = randInt(0, 1, rng);
+      const totalMinutes = hours * 60 + addHalf * 30;
+      const display = addHalf ? `${hours} hr 30 min = ? minutes` : `${hours} hours = ? minutes`;
+      return { display, answer: totalMinutes, template: 'time-elapsed-30min' };
     }
   },
 
@@ -1666,13 +1682,16 @@ const templates = {
     standard: 'CCSS.6.SP.B.5',
     generate: (rng) => {
       const count = randInt(3, 5, rng);
-      const mean = randInt(5, 15, rng);
+      const mean = randInt(10, 20, rng); // higher mean to avoid edge cases
       const total = mean * count;
-      // Generate numbers that sum to total
+      // Generate numbers around the mean that sum to total
       const nums = [];
       let remaining = total;
       for (let i = 0; i < count - 1; i++) {
-        const n = randInt(1, Math.min(remaining - (count - i - 1), mean + 5), rng);
+        // Keep values reasonable (between mean-5 and mean+5)
+        const minVal = Math.max(1, remaining - (count - i - 1) * (mean + 5));
+        const maxVal = Math.min(mean + 5, remaining - (count - i - 1));
+        const n = randInt(Math.max(1, minVal), Math.max(1, maxVal), rng);
         nums.push(n);
         remaining -= n;
       }
@@ -1862,8 +1881,9 @@ const templates = {
     skill: 'financial',
     standard: 'CCSS.7.RP.A.3',
     generate: (rng) => {
+      // Use 10% or 20% to ensure integer answers
+      const tipPercent = pickOne([10, 20], rng);
       const bill = randInt(2, 10, rng) * 10;
-      const tipPercent = pickOne([10, 15, 20], rng);
       const tip = bill * tipPercent / 100;
       return { display: `$${bill} + ${tipPercent}% tip = ?`, answer: bill + tip, template: '68-tax-tip' };
     }
@@ -1902,9 +1922,14 @@ const templates = {
     standard: 'CCSS.8.EE.A.3',
     generate: (rng) => {
       const exp1 = randInt(3, 6, rng);
-      const exp2 = randInt(3, 6, rng);
+      let exp2 = randInt(3, 6, rng);
       const coef1 = randInt(1, 9, rng);
-      const coef2 = randInt(1, 9, rng);
+      let coef2 = randInt(1, 9, rng);
+      // Ensure they're different
+      while (exp1 === exp2 && coef1 === coef2) {
+        exp2 = randInt(3, 6, rng);
+        coef2 = randInt(1, 9, rng);
+      }
       const n1 = coef1 * Math.pow(10, exp1);
       const n2 = coef2 * Math.pow(10, exp2);
       // Answer: 1 if first is larger, 2 if second
