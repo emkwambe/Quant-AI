@@ -91,3 +91,24 @@ export const merchandise = {
   orders: () => request('/merchandise/orders'),
   order: (id) => request(`/merchandise/orders/${id}`)
 };
+
+// Resources (Guides, Worksheets, Prep Materials)
+export const resources = {
+  types: () => request('/resources/types'),
+  grades: () => request('/resources/grades'),
+  list: (filters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.type) params.set('type', filters.type);
+    if (filters.grade) params.set('grade', filters.grade);
+    if (filters.free !== undefined) params.set('free', filters.free);
+    if (filters.search) params.set('search', filters.search);
+    return request(`/resources/list?${params.toString()}`);
+  },
+  get: (id) => request(`/resources/${id}`),
+  bundles: () => request('/resources/bundles/list'),
+  owned: (id) => request(`/resources/${id}/owned`),
+  myDownloads: () => request('/resources/my/downloads'),
+  download: (id) => request(`/resources/${id}/download`, { method: 'POST' }),
+  purchase: (id) => request(`/resources/${id}/purchase`, { method: 'POST' }),
+  purchaseBundle: (id) => request(`/resources/bundles/${id}/purchase`, { method: 'POST' })
+};

@@ -13,6 +13,7 @@ import analyticsRoutes from './routes/analytics.js';
 import subscriptionRoutes from './routes/subscriptions.js';
 import challengeRoutes from './routes/challenges.js';
 import merchandiseRoutes from './routes/merchandise.js';
+import resourceRoutes from './routes/resources.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -46,6 +47,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/challenges', challengeRoutes);
 app.use('/api/merchandise', merchandiseRoutes);
+app.use('/api/resources', resourceRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

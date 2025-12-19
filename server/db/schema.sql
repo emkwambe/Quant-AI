@@ -171,3 +171,119 @@ INSERT OR IGNORE INTO products (id, name, description, category, price_cents, im
   (10, 'Mathlete Wristband', 'Silicone wristband for team identity', 'accessories', 200, '/images/products/wristband.png'),
   (11, 'Medal Bundle (3-pack)', 'One gold, one silver, one bronze medal', 'bundles', 1500, '/images/products/medal-bundle.png'),
   (12, 'Classroom Prize Kit', 'Medals, stickers, pencils for 30 students', 'bundles', 4500, '/images/products/prize-kit.png');
+
+-- ============================================
+-- RESOURCES: Guides, Worksheets, Prep Materials
+-- ============================================
+
+-- Resources table (guides, worksheets, prep materials)
+CREATE TABLE IF NOT EXISTS resources (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  description TEXT,
+  type TEXT NOT NULL,  -- 'guide', 'worksheet', 'answer-key', 'competition-prep'
+  category TEXT NOT NULL,  -- grade level or topic
+  grade_level TEXT,  -- 'K-2', '3-5', '6-8', 'all'
+  difficulty TEXT,  -- 'easy', 'medium', 'hard'
+  is_free BOOLEAN DEFAULT 0,
+  price_cents INTEGER DEFAULT 0,
+  file_url TEXT,  -- URL to PDF or digital resource
+  preview_url TEXT,  -- Preview image or first page
+  page_count INTEGER DEFAULT 1,
+  download_count INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT 1,
+  tags TEXT,  -- comma-separated tags for filtering
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Resource purchases/downloads tracking
+CREATE TABLE IF NOT EXISTS resource_downloads (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  resource_id INTEGER NOT NULL,
+  teacher_id INTEGER NOT NULL,
+  stripe_payment_intent TEXT,
+  downloaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (resource_id) REFERENCES resources(id) ON DELETE CASCADE,
+  FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE
+);
+
+-- Resource bundles (grouped resources at discount)
+CREATE TABLE IF NOT EXISTS resource_bundles (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  description TEXT,
+  price_cents INTEGER NOT NULL,
+  discount_percent INTEGER DEFAULT 20,
+  is_active BOOLEAN DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bundle items (which resources are in each bundle)
+CREATE TABLE IF NOT EXISTS resource_bundle_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  bundle_id INTEGER NOT NULL,
+  resource_id INTEGER NOT NULL,
+  FOREIGN KEY (bundle_id) REFERENCES resource_bundles(id) ON DELETE CASCADE,
+  FOREIGN KEY (resource_id) REFERENCES resources(id) ON DELETE CASCADE
+);
+
+-- Indexes for resources
+CREATE INDEX IF NOT EXISTS idx_resources_type ON resources(type);
+CREATE INDEX IF NOT EXISTS idx_resources_category ON resources(category);
+CREATE INDEX IF NOT EXISTS idx_resources_grade ON resources(grade_level);
+CREATE INDEX IF NOT EXISTS idx_resources_free ON resources(is_free);
+CREATE INDEX IF NOT EXISTS idx_resources_active ON resources(is_active);
+CREATE INDEX IF NOT EXISTS idx_resource_downloads_teacher ON resource_downloads(teacher_id);
+CREATE INDEX IF NOT EXISTS idx_resource_downloads_resource ON resource_downloads(resource_id);
+
+-- Seed initial free resources
+INSERT OR IGNORE INTO resources (id, title, description, type, category, grade_level, difficulty, is_free, price_cents, page_count, tags) VALUES
+  -- FREE Study Guides
+  (1, 'Getting Started with Mathathlon', 'Introduction guide for teachers and students on how to use Mathathlon effectively', 'guide', 'getting-started', 'all', 'easy', 1, 0, 5, 'intro,basics,tutorial'),
+  (2, 'Competition Day Tips', 'Strategies for students to perform their best during heats', 'guide', 'competition-prep', 'all', 'easy', 1, 0, 3, 'tips,strategy,competition'),
+  (3, 'Mental Math Strategies', 'Techniques for fast mental calculation', 'guide', 'mental-math', '3-5', 'medium', 1, 0, 8, 'mental-math,speed,tricks'),
+
+  -- FREE Practice Worksheets
+  (4, 'Addition & Subtraction Warm-Up', '20 problems to practice basic operations', 'worksheet', 'operations', 'K-2', 'easy', 1, 0, 2, 'addition,subtraction,practice'),
+  (5, 'Multiplication Facts Sprint', 'Timed practice for multiplication fluency', 'worksheet', 'operations', '3-5', 'medium', 1, 0, 2, 'multiplication,facts,timed'),
+  (6, 'Integer Operations Practice', 'Adding and subtracting positive and negative numbers', 'worksheet', 'integers', '6-8', 'medium', 1, 0, 2, 'integers,negative,operations'),
+
+  -- PAID Study Guides
+  (7, 'Mastering Order of Operations', 'Deep dive into PEMDAS with practice problems', 'guide', 'order-of-ops', '3-5', 'medium', 0, 299, 12, 'pemdas,order,parentheses'),
+  (8, 'Fraction Foundations', 'Complete guide to understanding fractions', 'guide', 'fractions', '3-5', 'medium', 0, 399, 18, 'fractions,equivalent,compare'),
+  (9, 'Pre-Algebra Prep Guide', 'Everything needed before Algebra I', 'guide', 'algebra-prep', '6-8', 'hard', 0, 499, 25, 'algebra,variables,equations'),
+  (10, 'Proportional Reasoning Mastery', 'Ratios, rates, and proportions explained', 'guide', 'proportions', '6-8', 'medium', 0, 399, 15, 'ratios,rates,proportions'),
+
+  -- PAID Practice Worksheets
+  (11, 'K-2 Competition Prep Pack', '50 problems across all K-2 topics', 'worksheet', 'competition-prep', 'K-2', 'medium', 0, 199, 10, 'competition,k2,comprehensive'),
+  (12, 'Grade 3-5 Competition Prep Pack', '100 problems covering all 3-5 standards', 'worksheet', 'competition-prep', '3-5', 'medium', 0, 299, 20, 'competition,35,comprehensive'),
+  (13, 'Grade 6-8 Competition Prep Pack', '100 challenging pre-algebra problems', 'worksheet', 'competition-prep', '6-8', 'hard', 0, 349, 20, 'competition,68,prealgebra'),
+  (14, 'Properties of Operations Drill', 'Commutative, associative, distributive practice', 'worksheet', 'properties', '3-5', 'medium', 0, 199, 5, 'properties,commutative,distributive'),
+  (15, 'Word Problem Workshop', 'Multi-step word problems with strategies', 'worksheet', 'word-problems', '3-5', 'hard', 0, 249, 8, 'word-problems,multi-step,strategy'),
+
+  -- PAID Answer Keys (for worksheet bundles)
+  (16, 'K-2 Competition Prep - Answer Key', 'Complete solutions with explanations', 'answer-key', 'competition-prep', 'K-2', 'medium', 0, 99, 5, 'answers,solutions,k2'),
+  (17, 'Grade 3-5 Competition Prep - Answer Key', 'Complete solutions with explanations', 'answer-key', 'competition-prep', '3-5', 'medium', 0, 149, 10, 'answers,solutions,35'),
+  (18, 'Grade 6-8 Competition Prep - Answer Key', 'Complete solutions with explanations', 'answer-key', 'competition-prep', '6-8', 'hard', 0, 149, 10, 'answers,solutions,68'),
+
+  -- Competition Prep Guides
+  (19, 'Coach''s Competition Handbook', 'How to run successful classroom competitions', 'competition-prep', 'coaching', 'all', 'medium', 0, 499, 20, 'coaching,teacher,management'),
+  (20, 'Math Olympiad Prep: Elementary', 'Advanced problem-solving for gifted students', 'competition-prep', 'olympiad', '3-5', 'hard', 0, 599, 30, 'olympiad,advanced,gifted');
+
+-- Seed resource bundles
+INSERT OR IGNORE INTO resource_bundles (id, name, description, price_cents, discount_percent) VALUES
+  (1, 'K-2 Complete Bundle', 'All K-2 guides, worksheets, and answer keys', 399, 25),
+  (2, 'Grade 3-5 Complete Bundle', 'All 3-5 guides, worksheets, and answer keys', 799, 30),
+  (3, 'Grade 6-8 Complete Bundle', 'All 6-8 guides, worksheets, and answer keys', 899, 30),
+  (4, 'Competition Coach Bundle', 'Everything a teacher needs for competitions', 999, 35);
+
+-- Link bundle items
+INSERT OR IGNORE INTO resource_bundle_items (bundle_id, resource_id) VALUES
+  -- K-2 Bundle
+  (1, 4), (1, 11), (1, 16),
+  -- 3-5 Bundle
+  (2, 5), (2, 7), (2, 8), (2, 12), (2, 14), (2, 15), (2, 17),
+  -- 6-8 Bundle
+  (3, 6), (3, 9), (3, 10), (3, 13), (3, 18),
+  -- Coach Bundle
+  (4, 1), (4, 2), (4, 3), (4, 19);

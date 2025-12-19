@@ -4,6 +4,7 @@ import { HeatResults } from '../components/HeatResults.jsx';
 import { StudentAnalytics } from '../components/StudentAnalytics.jsx';
 import { ChallengeMode } from '../components/ChallengeMode.jsx';
 import { MerchandiseStore } from '../components/MerchandiseStore.jsx';
+import { ResourceCenter } from '../components/ResourceCenter.jsx';
 
 export function TeacherDashboard({ teacher, onLogout }) {
   const [myClassrooms, setMyClassrooms] = useState([]);
@@ -13,7 +14,7 @@ export function TeacherDashboard({ teacher, onLogout }) {
   const [heatResults, setHeatResults] = useState(null);
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState(null);
-  const [activeTab, setActiveTab] = useState('heats'); // 'heats', 'analytics', 'challenges', 'shop'
+  const [activeTab, setActiveTab] = useState('heats'); // 'heats', 'analytics', 'challenges', 'resources', 'shop'
   const [selectedStudent, setSelectedStudent] = useState(null);
 
   useEffect(() => {
@@ -263,6 +264,12 @@ export function TeacherDashboard({ teacher, onLogout }) {
                 Class vs Class {!isPro && '(Pro)'}
               </button>
               <button
+                class={`btn ${activeTab === 'resources' ? 'btn-primary' : 'btn-outline'}`}
+                onClick={() => setActiveTab('resources')}
+              >
+                Resources
+              </button>
+              <button
                 class={`btn ${activeTab === 'shop' ? 'btn-primary' : 'btn-outline'}`}
                 onClick={() => setActiveTab('shop')}
               >
@@ -381,6 +388,10 @@ export function TeacherDashboard({ teacher, onLogout }) {
                   console.log('Start challenge', challengeId);
                 }}
               />
+            )}
+
+            {activeTab === 'resources' && (
+              <ResourceCenter />
             )}
 
             {activeTab === 'shop' && (
