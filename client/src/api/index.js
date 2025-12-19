@@ -54,3 +54,29 @@ export const heats = {
   end: (id) => request(`/heats/${id}/end`, { method: 'POST' }),
   results: (id) => request(`/heats/${id}/results`)
 };
+
+// Analytics (Pro feature)
+export const analytics = {
+  student: (studentId) => request(`/analytics/student/${studentId}`),
+  classroom: (classroomId) => request(`/analytics/classroom/${classroomId}`),
+  export: (classroomId) => request(`/analytics/classroom/${classroomId}/export`)
+};
+
+// Subscriptions
+export const subscriptions = {
+  status: () => request('/subscriptions/status'),
+  checkout: (plan) => request('/subscriptions/checkout', { method: 'POST', body: JSON.stringify({ plan }) }),
+  portal: () => request('/subscriptions/portal', { method: 'POST' })
+};
+
+// Challenges (Class vs Class)
+export const challenges = {
+  search: (query) => request(`/challenges/search?query=${encodeURIComponent(query)}`),
+  pending: () => request('/challenges/pending'),
+  my: () => request('/challenges/my'),
+  create: (data) => request('/challenges/create', { method: 'POST', body: JSON.stringify(data) }),
+  accept: (id) => request(`/challenges/${id}/accept`, { method: 'POST' }),
+  decline: (id) => request(`/challenges/${id}/decline`, { method: 'POST' }),
+  start: (id, classroomId) => request(`/challenges/${id}/start`, { method: 'POST', body: JSON.stringify({ classroomId }) }),
+  results: (id) => request(`/challenges/${id}/results`)
+};

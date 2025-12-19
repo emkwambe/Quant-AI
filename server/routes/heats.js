@@ -62,13 +62,18 @@ router.post('/start', requireTeacher, (req, res) => {
 
     const heatId = result.lastInsertRowid;
 
+    // Map classroom grade_level to grade band
+    const gradeBands = { 1: 'K-2', 2: 'K-2', 3: '3-5', 4: '3-5', 5: '3-5', 6: '6-8', 7: '6-8', 8: '6-8' };
+    const gradeLevel = gradeBands[classroom.grade_level] || '3-5';
+
     // Generate questions for this heat
-    const questions = generateQuestions(difficulty, 20);
+    const questions = generateQuestions(difficulty, 20, heatId, gradeLevel);
 
     res.json({
       id: heatId,
       classroomId,
       difficultyLevel: difficulty,
+      gradeLevel,
       status: 'active',
       questions: questions.map((q, i) => ({
         index: i,
@@ -98,8 +103,14 @@ router.get('/active', requireStudent, (req, res) => {
     return res.json({ active: false });
   }
 
+  // Get classroom grade level
+  const classroom = db.prepare('SELECT grade_level FROM classrooms WHERE id = ?')
+    .get(req.student.classroom_id);
+  const gradeBands = { 1: 'K-2', 2: 'K-2', 3: '3-5', 4: '3-5', 5: '3-5', 6: '6-8', 7: '6-8', 8: '6-8' };
+  const gradeLevel = gradeBands[classroom?.grade_level] || '3-5';
+
   // Generate same questions (deterministic based on heat ID)
-  const questions = generateQuestions(heat.difficulty_level, 20, heat.id);
+  const questions = generateQuestions(heat.difficulty_level, 20, heat.id, gradeLevel);
 
   // Get student's existing responses
   const responses = db.prepare(`
@@ -155,8 +166,14 @@ router.post('/answer', requireStudent, (req, res) => {
       return res.status(400).json({ error: 'Already answered' });
     }
 
+    // Get classroom grade level
+    const classroom = db.prepare('SELECT grade_level FROM classrooms WHERE id = ?')
+      .get(req.student.classroom_id);
+    const gradeBands = { 1: 'K-2', 2: 'K-2', 3: '3-5', 4: '3-5', 5: '3-5', 6: '6-8', 7: '6-8', 8: '6-8' };
+    const gradeLevel = gradeBands[classroom?.grade_level] || '3-5';
+
     // Regenerate question to get correct answer
-    const questions = generateQuestions(heat.difficulty_level, 20, heatId);
+    const questions = generateQuestions(heat.difficulty_level, 20, heatId, gradeLevel);
     const question = questions[questionIndex];
 
     if (!question) {

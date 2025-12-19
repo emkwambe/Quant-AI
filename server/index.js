@@ -9,6 +9,9 @@ import authRoutes from './routes/auth.js';
 import classroomRoutes from './routes/classrooms.js';
 import studentRoutes from './routes/students.js';
 import heatRoutes from './routes/heats.js';
+import analyticsRoutes from './routes/analytics.js';
+import subscriptionRoutes from './routes/subscriptions.js';
+import challengeRoutes from './routes/challenges.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -38,6 +41,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/classrooms', classroomRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/heats', heatRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/challenges', challengeRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

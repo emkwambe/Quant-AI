@@ -1,4 +1,4 @@
-export function HeatResults({ results, onNewHeat }) {
+export function HeatResults({ results, onNewHeat, onViewStudent }) {
   const { leaderboard, stats, heat } = results;
 
   return (
@@ -56,7 +56,13 @@ export function HeatResults({ results, onNewHeat }) {
             }`}>
               {entry.rank}
             </span>
-            <span class="leaderboard-name">{entry.displayName}</span>
+            <span
+              class="leaderboard-name"
+              style={onViewStudent ? { cursor: 'pointer', textDecoration: 'underline' } : {}}
+              onClick={() => onViewStudent && onViewStudent(entry.studentId)}
+            >
+              {entry.displayName}
+            </span>
             <span class="text-light" style={{ marginRight: '1rem' }}>
               {entry.correct}/{entry.total}
             </span>
