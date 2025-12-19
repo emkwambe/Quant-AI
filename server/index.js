@@ -32,7 +32,7 @@ import './db/index.js';
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
     ? false
-    : 'http://localhost:5173',
+    : /^http:\/\/localhost:\d+$/,  // Allow any localhost port in dev
   credentials: true
 }));
 app.use(express.json());
