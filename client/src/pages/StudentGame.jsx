@@ -264,7 +264,7 @@ export function StudentGame({ student, onLeave }) {
       {/* Question */}
       <div class="card">
         <div class="question-display">
-          {currentQuestion?.display} = ?
+          {currentQuestion?.display}
         </div>
 
         <input

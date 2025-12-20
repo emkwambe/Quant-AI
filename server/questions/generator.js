@@ -45,7 +45,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(1, 4, rng);
       const b = randInt(1, 5 - a, rng);
-      return { display: `${a} + ${b}`, answer: a + b, template: 'k2-add-within-5' };
+      return { display: `${a} + ${b} = ?`, answer: a + b, template: 'k2-add-within-5' };
     }
   },
 
@@ -57,7 +57,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(2, 5, rng);
       const b = randInt(1, a - 1, rng);
-      return { display: `${a} - ${b}`, answer: a - b, template: 'k2-sub-within-5' };
+      return { display: `${a} - ${b} = ?`, answer: a - b, template: 'k2-sub-within-5' };
     }
   },
 
@@ -69,7 +69,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(1, 9, rng);
       const b = randInt(1, 10 - a, rng);
-      return { display: `${a} + ${b}`, answer: a + b, template: 'k2-add-within-10' };
+      return { display: `${a} + ${b} = ?`, answer: a + b, template: 'k2-add-within-10' };
     }
   },
 
@@ -81,7 +81,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(3, 10, rng);
       const b = randInt(1, a - 1, rng);
-      return { display: `${a} - ${b}`, answer: a - b, template: 'k2-sub-within-10' };
+      return { display: `${a} - ${b} = ?`, answer: a - b, template: 'k2-sub-within-10' };
     }
   },
 
@@ -93,7 +93,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(5, 15, rng);
       const b = randInt(1, 20 - a, rng);
-      return { display: `${a} + ${b}`, answer: a + b, template: 'k2-add-within-20' };
+      return { display: `${a} + ${b} = ?`, answer: a + b, template: 'k2-add-within-20' };
     }
   },
 
@@ -105,7 +105,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(10, 20, rng);
       const b = randInt(1, a - 1, rng);
-      return { display: `${a} - ${b}`, answer: a - b, template: 'k2-sub-within-20' };
+      return { display: `${a} - ${b} = ?`, answer: a - b, template: 'k2-sub-within-20' };
     }
   },
 
@@ -116,7 +116,7 @@ const templates = {
     standard: 'CCSS.1.OA.C.6',
     generate: (rng) => {
       const a = randInt(1, 10, rng);
-      return { display: `${a} + ${a}`, answer: a + a, template: 'k2-doubles' };
+      return { display: `${a} + ${a} = ?`, answer: a + a, template: 'k2-doubles' };
     }
   },
 
@@ -128,7 +128,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(10, 50, rng);
       const b = randInt(10, 99 - a, rng);
-      return { display: `${a} + ${b}`, answer: a + b, template: 'k2-add-within-100' };
+      return { display: `${a} + ${b} = ?`, answer: a + b, template: 'k2-add-within-100' };
     }
   },
 
@@ -140,7 +140,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(50, 99, rng);
       const b = randInt(10, a - 10, rng);
-      return { display: `${a} - ${b}`, answer: a - b, template: 'k2-sub-within-100' };
+      return { display: `${a} - ${b} = ?`, answer: a - b, template: 'k2-sub-within-100' };
     }
   },
 
@@ -369,7 +369,8 @@ const templates = {
     generate: (rng) => {
       const groups = randInt(2, 5, rng);
       const perGroup = randInt(2, 5, rng);
-      return { display: `${groups} groups of ${perGroup} = ?`, answer: groups * perGroup, template: 'k2-equal-groups' };
+      // Clear single-answer format: "groups × per group = total"
+      return { display: `${groups} groups of ${perGroup} = ? total`, answer: groups * perGroup, template: 'k2-equal-groups' };
     }
   },
 
@@ -385,7 +386,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(1, 20, rng);
       const b = randInt(1, 20, rng);
-      return { display: `${a} + ${b}`, answer: a + b, template: 'add-simple' };
+      return { display: `${a} + ${b} = ?`, answer: a + b, template: 'add-simple' };
     }
   },
 
@@ -397,7 +398,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(10, 30, rng);
       const b = randInt(1, a - 1, rng);
-      return { display: `${a} - ${b}`, answer: a - b, template: 'sub-simple' };
+      return { display: `${a} - ${b} = ?`, answer: a - b, template: 'sub-simple' };
     }
   },
 
@@ -414,7 +415,7 @@ const templates = {
       const b0 = randInt(1, 9 - a0, rng); // ones digit of b
       const a = a1 * 10 + a0;
       const b = b1 * 10 + b0;
-      return { display: `${a} + ${b}`, answer: a + b, template: 'add-2digit-no-carry' };
+      return { display: `${a} + ${b} = ?`, answer: a + b, template: 'add-2digit-no-carry' };
     }
   },
 
@@ -431,7 +432,7 @@ const templates = {
       const b0 = randInt(1, a0, rng); // ones digit of b ≤ a0
       const a = a1 * 10 + a0;
       const b = b1 * 10 + b0;
-      return { display: `${a} - ${b}`, answer: a - b, template: 'sub-2digit-no-borrow' };
+      return { display: `${a} - ${b} = ?`, answer: a - b, template: 'sub-2digit-no-borrow' };
     }
   },
 
@@ -443,7 +444,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(2, 9, rng);
       const b = randInt(2, 5, rng);
-      return { display: `${a} × ${b}`, answer: a * b, template: 'mult-by-1' };
+      return { display: `${a} × ${b} = ?`, answer: a * b, template: 'mult-by-1' };
     }
   },
 
@@ -467,7 +468,7 @@ const templates = {
       const b = randInt(2, 5, rng);
       const answer = randInt(2, 9, rng);
       const a = b * answer;
-      return { display: `${a} ÷ ${b}`, answer, template: 'div-simple' };
+      return { display: `${a} ÷ ${b} = ?`, answer, template: 'div-simple' };
     }
   },
 
@@ -479,7 +480,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(25, 75, rng);
       const b = randInt(25, 99 - a, rng);
-      return { display: `${a} + ${b}`, answer: a + b, template: 'add-2digit-carry' };
+      return { display: `${a} + ${b} = ?`, answer: a + b, template: 'add-2digit-carry' };
     }
   },
 
@@ -491,7 +492,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(50, 99, rng);
       const b = randInt(a - 49, a - 10, rng);
-      return { display: `${a} - ${b}`, answer: a - b, template: 'sub-2digit-borrow' };
+      return { display: `${a} - ${b} = ?`, answer: a - b, template: 'sub-2digit-borrow' };
     }
   },
 
@@ -503,7 +504,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(2, 12, rng);
       const b = randInt(2, 12, rng);
-      return { display: `${a} × ${b}`, answer: a * b, template: 'mult-facts' };
+      return { display: `${a} × ${b} = ?`, answer: a * b, template: 'mult-facts' };
     }
   },
 
@@ -527,7 +528,7 @@ const templates = {
       const b = randInt(2, 12, rng);
       const answer = randInt(2, 12, rng);
       const a = b * answer;
-      return { display: `${a} ÷ ${b}`, answer, template: 'div-facts' };
+      return { display: `${a} ÷ ${b} = ?`, answer, template: 'div-facts' };
     }
   },
 
@@ -565,7 +566,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(100, 500, rng);
       const b = randInt(100, 999 - a, rng);
-      return { display: `${a} + ${b}`, answer: a + b, template: 'add-3digit' };
+      return { display: `${a} + ${b} = ?`, answer: a + b, template: 'add-3digit' };
     }
   },
 
@@ -577,7 +578,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(500, 999, rng);
       const b = randInt(100, a - 100, rng);
-      return { display: `${a} - ${b}`, answer: a - b, template: 'sub-3digit' };
+      return { display: `${a} - ${b} = ?`, answer: a - b, template: 'sub-3digit' };
     }
   },
 
@@ -589,7 +590,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(11, 25, rng);
       const b = randInt(2, 9, rng);
-      return { display: `${a} × ${b}`, answer: a * b, template: 'mult-2digit-by-1digit' };
+      return { display: `${a} × ${b} = ?`, answer: a * b, template: 'mult-2digit-by-1digit' };
     }
   },
 
@@ -602,7 +603,7 @@ const templates = {
       const b = randInt(2, 9, rng);
       const answer = randInt(10, 20, rng);
       const a = b * answer;
-      return { display: `${a} ÷ ${b}`, answer, template: 'div-2digit' };
+      return { display: `${a} ÷ ${b} = ?`, answer, template: 'div-2digit' };
     }
   },
 
@@ -1592,7 +1593,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(-12, 12, rng);
       const b = randInt(-12, 12, rng);
-      if (a === 0 || b === 0) return { display: `${a} × ${b}`, answer: 0, template: '68-negative-mult' };
+      if (a === 0 || b === 0) return { display: `${a} × ${b} = ?`, answer: 0, template: '68-negative-mult' };
       const display = `(${a}) × (${b})`;
       return { display, answer: a * b, template: '68-negative-mult' };
     }
