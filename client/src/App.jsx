@@ -7,6 +7,10 @@ import { TeacherAuth } from './pages/TeacherAuth.jsx';
 import { TeacherDashboard } from './pages/TeacherDashboard.jsx';
 import { StudentJoin } from './pages/StudentJoin.jsx';
 import { StudentGame } from './pages/StudentGame.jsx';
+import { DevSwitcher } from './pages/DevSwitcher.jsx';
+
+// Check if in development mode
+const isDev = window.location.hostname === 'localhost';
 
 export function App() {
   const [page, setPage] = useState('loading');
@@ -76,6 +80,15 @@ export function App() {
       <Landing
         onTeacherClick={() => setPage('teacher-auth')}
         onStudentClick={() => setPage('student-join')}
+        onDevClick={isDev ? () => setPage('dev-switcher') : null}
+      />
+    ),
+
+    'dev-switcher': () => (
+      <DevSwitcher
+        onTeacherLogin={handleTeacherLogin}
+        onStudentJoin={handleStudentJoin}
+        onBack={() => setPage('landing')}
       />
     ),
 

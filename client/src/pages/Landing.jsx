@@ -1,8 +1,26 @@
 import { Logo, LogoWithTagline } from '../components/Logo.jsx';
 
-export function Landing({ onTeacherClick, onStudentClick }) {
+export function Landing({ onTeacherClick, onStudentClick, onDevClick }) {
   return (
     <div class="container" style={{ paddingTop: '2rem' }}>
+      {/* Dev Mode Quick Access */}
+      {onDevClick && (
+        <div class="text-center mb-2">
+          <button
+            class="btn"
+            onClick={onDevClick}
+            style={{
+              background: '#fef3c7',
+              color: '#92400e',
+              fontSize: '0.875rem',
+              padding: '0.5rem 1rem'
+            }}
+          >
+            🛠️ Dev: Quick Account Switcher
+          </button>
+        </div>
+      )}
+
       {/* Hero Section */}
       <div class="hero">
         <LogoWithTagline
