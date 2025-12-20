@@ -1123,10 +1123,10 @@ const templates = {
     standard: 'CCSS.4.OA.C.5',
     generate: (rng) => {
       const mult = randInt(2, 5, rng);
-      const add = randInt(0, 5, rng);
+      const add = randInt(1, 5, rng);
       const input = randInt(3, 10, rng);
-      // Rule: output = input × mult + add
-      return { display: `Rule: ×${mult}${add > 0 ? '+' + add : ''}. Input=${input}, Output=?`, answer: input * mult + add, template: 'input-output' };
+      // Clearer format: "If input is X, multiply by M, add A, output = ?"
+      return { display: `${input} × ${mult} + ${add} = ?`, answer: input * mult + add, template: 'input-output' };
     }
   },
 
@@ -2629,11 +2629,12 @@ const templates = {
     skill: 'algebra',
     standard: 'CCSS.6.EE.B.6',
     generate: (rng) => {
-      // Pattern: input × 3 + 2 = output. Given input, find output
+      // Pattern: input × mult + add = output. Given input, find output
       const mult = randInt(2, 4, rng);
       const add = randInt(1, 5, rng);
-      const input = randInt(3, 8, rng);
-      return { display: `Rule: n×${mult}+${add}. n=${input}, result=?`, answer: input * mult + add, template: '68-variable-pattern' };
+      const n = randInt(3, 8, rng);
+      // Clear format: "If n = X, then n × M + A = ?"
+      return { display: `If n = ${n}, then ${n} × ${mult} + ${add} = ?`, answer: n * mult + add, template: '68-variable-pattern' };
     }
   },
 
