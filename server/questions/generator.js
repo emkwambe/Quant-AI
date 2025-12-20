@@ -455,7 +455,7 @@ const templates = {
     standard: 'CCSS.4.NBT.B.5',
     generate: (rng) => {
       const a = randInt(2, 12, rng);
-      return { display: `${a} × 10`, answer: a * 10, template: 'mult-by-10' };
+      return { display: `${a} × 10 = ?`, answer: a * 10, template: 'mult-by-10' };
     }
   },
 
@@ -515,7 +515,7 @@ const templates = {
     standard: 'CCSS.4.NBT.B.5',
     generate: (rng) => {
       const a = randInt(2, 20, rng);
-      return { display: `${a} × 100`, answer: a * 100, template: 'mult-by-100' };
+      return { display: `${a} × 100 = ?`, answer: a * 100, template: 'mult-by-100' };
     }
   },
 
@@ -1567,7 +1567,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(-20, 20, rng);
       const b = randInt(-20, 20, rng);
-      const display = b >= 0 ? `${a} + ${b}` : `${a} + (${b})`;
+      const display = b >= 0 ? `${a} + ${b} = ?` : `${a} + (${b}) = ?`;
       return { display, answer: a + b, template: '68-negative-add' };
     }
   },
@@ -1580,7 +1580,7 @@ const templates = {
     generate: (rng) => {
       const a = randInt(-20, 20, rng);
       const b = randInt(-20, 20, rng);
-      const display = b >= 0 ? `${a} - ${b}` : `${a} - (${b})`;
+      const display = b >= 0 ? `${a} - ${b} = ?` : `${a} - (${b}) = ?`;
       return { display, answer: a - b, template: '68-negative-sub' };
     }
   },
@@ -2112,8 +2112,9 @@ const templates = {
     skill: 'percent',
     standard: 'CCSS.7.RP.A.3',
     generate: (rng) => {
+      // Use 10%, 20%, 50% to ensure integer answers with multiples of 10
       const original = randInt(2, 10, rng) * 10;
-      const percent = pickOne([10, 20, 25, 50], rng);
+      const percent = pickOne([10, 20, 50], rng);
       const increase = original * percent / 100;
       return { display: `${original} + ${percent}% = ?`, answer: original + increase, template: '68-percent-increase' };
     }
@@ -2125,8 +2126,9 @@ const templates = {
     skill: 'percent',
     standard: 'CCSS.7.RP.A.3',
     generate: (rng) => {
+      // Use 10%, 20%, 50% to ensure integer answers with multiples of 10
       const original = randInt(2, 10, rng) * 10;
-      const percent = pickOne([10, 20, 25, 50], rng);
+      const percent = pickOne([10, 20, 50], rng);
       const decrease = original * percent / 100;
       return { display: `${original} - ${percent}% = ?`, answer: original - decrease, template: '68-percent-decrease' };
     }
@@ -2165,8 +2167,9 @@ const templates = {
     skill: 'financial',
     standard: 'CCSS.7.RP.A.3',
     generate: (rng) => {
+      // Use 10%, 20%, 50% to ensure integer answers with multiples of 10
       const price = randInt(2, 10, rng) * 10;
-      const discount = pickOne([10, 20, 25, 50], rng);
+      const discount = pickOne([10, 20, 50], rng);
       const sale = price - price * discount / 100;
       return { display: `$${price} with ${discount}% off = ?`, answer: sale, template: '68-discount' };
     }
