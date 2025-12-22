@@ -5,6 +5,9 @@ import { StudentAnalytics } from '../components/StudentAnalytics.jsx';
 import { ChallengeMode } from '../components/ChallengeMode.jsx';
 import { MerchandiseStore } from '../components/MerchandiseStore.jsx';
 import { ResourceCenter } from '../components/ResourceCenter.jsx';
+import TournamentList from '../components/TournamentList.jsx';
+import TournamentCreate from '../components/TournamentCreate.jsx';
+import TournamentDetail from '../components/TournamentDetail.jsx';
 
 export function TeacherDashboard({ teacher, onLogout }) {
   const [myClassrooms, setMyClassrooms] = useState([]);
@@ -14,8 +17,10 @@ export function TeacherDashboard({ teacher, onLogout }) {
   const [heatResults, setHeatResults] = useState(null);
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState(null);
-  const [activeTab, setActiveTab] = useState('heats'); // 'heats', 'analytics', 'challenges', 'resources', 'shop'
+  const [activeTab, setActiveTab] = useState('heats'); // 'heats', 'analytics', 'challenges', 'tournaments', 'resources', 'shop'
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedTournament, setSelectedTournament] = useState(null);
+  const [showTournamentCreate, setShowTournamentCreate] = useState(false);
 
   useEffect(() => {
     loadClassrooms();
@@ -264,6 +269,12 @@ export function TeacherDashboard({ teacher, onLogout }) {
                 Class vs Class {!isPro && '(Pro)'}
               </button>
               <button
+                class={`btn ${activeTab === 'tournaments' ? 'btn-primary' : 'btn-outline'}`}
+                onClick={() => { setActiveTab('tournaments'); setSelectedTournament(null); setShowTournamentCreate(false); }}
+              >
+                Tournaments
+              </button>
+              <button
                 class={`btn ${activeTab === 'resources' ? 'btn-primary' : 'btn-outline'}`}
                 onClick={() => setActiveTab('resources')}
               >
@@ -388,6 +399,34 @@ export function TeacherDashboard({ teacher, onLogout }) {
                   console.log('Start challenge', challengeId);
                 }}
               />
+            )}
+
+            {activeTab === 'tournaments' && (
+              <>
+                {selectedTournament ? (
+                  <TournamentDetail
+                    tournamentId={selectedTournament.id}
+                    onBack={() => setSelectedTournament(null)}
+                  />
+                ) : showTournamentCreate ? (
+                  <TournamentCreate
+                    classrooms={myClassrooms.map(c => ({
+                      ...c,
+                      studentCount: c.students?.length || 0
+                    }))}
+                    onCreated={(tournament) => {
+                      setShowTournamentCreate(false);
+                      setSelectedTournament(tournament);
+                    }}
+                    onCancel={() => setShowTournamentCreate(false)}
+                  />
+                ) : (
+                  <TournamentList
+                    onSelect={setSelectedTournament}
+                    onCreateNew={() => setShowTournamentCreate(true)}
+                  />
+                )}
+              </>
             )}
 
             {activeTab === 'resources' && (

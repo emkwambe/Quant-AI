@@ -288,3 +288,109 @@ INSERT OR IGNORE INTO resource_bundle_items (bundle_id, resource_id) VALUES
   (3, 6), (3, 9), (3, 10), (3, 13), (3, 18),
   -- Coach Bundle
   (4, 1), (4, 2), (4, 3), (4, 19);
+
+-- ============================================
+-- TOURNAMENTS: Classroom-Level Competitions
+-- ============================================
+
+-- Tournaments (season-long classroom competitions)
+CREATE TABLE IF NOT EXISTS tournaments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  classroom_id INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  season TEXT,  -- e.g., 'Fall 2025', 'Spring 2026'
+  status TEXT DEFAULT 'draft',  -- 'draft', 'active', 'completed', 'cancelled'
+  format TEXT DEFAULT 'round_robin',  -- 'round_robin', 'swiss', 'elimination'
+  difficulty_level INTEGER DEFAULT 3,
+  rounds_per_week INTEGER DEFAULT 1,
+  questions_per_match INTEGER DEFAULT 10,
+  start_date DATE,
+  end_date DATE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE
+);
+
+-- Tournament rounds (weekly competition windows)
+CREATE TABLE IF NOT EXISTS tournament_rounds (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tournament_id INTEGER NOT NULL,
+  round_number INTEGER NOT NULL,
+  status TEXT DEFAULT 'pending',  -- 'pending', 'active', 'completed'
+  opens_at DATETIME NOT NULL,
+  closes_at DATETIME NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
+);
+
+-- Tournament matchups (student vs student pairings per round)
+CREATE TABLE IF NOT EXISTS tournament_matchups (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  round_id INTEGER NOT NULL,
+  student_a_id INTEGER NOT NULL,
+  student_b_id INTEGER,  -- NULL = bye (student automatically wins)
+  heat_id INTEGER,  -- Links to the actual heat where they compete
+  status TEXT DEFAULT 'pending',  -- 'pending', 'active', 'completed'
+  student_a_score INTEGER DEFAULT 0,  -- Correct answers
+  student_b_score INTEGER DEFAULT 0,
+  student_a_accuracy REAL DEFAULT 0,  -- Percentage correct
+  student_b_accuracy REAL DEFAULT 0,
+  student_a_avg_time_ms INTEGER,  -- Average response time
+  student_b_avg_time_ms INTEGER,
+  winner_student_id INTEGER,  -- Determined after completion
+  is_tie BOOLEAN DEFAULT 0,
+  completed_at DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (round_id) REFERENCES tournament_rounds(id) ON DELETE CASCADE,
+  FOREIGN KEY (student_a_id) REFERENCES students(id) ON DELETE CASCADE,
+  FOREIGN KEY (student_b_id) REFERENCES students(id) ON DELETE CASCADE,
+  FOREIGN KEY (heat_id) REFERENCES heats(id) ON DELETE SET NULL
+);
+
+-- Tournament standings (aggregated stats per student per tournament)
+CREATE TABLE IF NOT EXISTS tournament_standings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tournament_id INTEGER NOT NULL,
+  student_id INTEGER NOT NULL,
+  matches_played INTEGER DEFAULT 0,
+  matches_won INTEGER DEFAULT 0,
+  matches_lost INTEGER DEFAULT 0,
+  matches_tied INTEGER DEFAULT 0,
+  total_points INTEGER DEFAULT 0,  -- 3 for win, 1 for tie, 0 for loss
+  total_correct INTEGER DEFAULT 0,
+  total_questions INTEGER DEFAULT 0,
+  avg_accuracy REAL DEFAULT 0,
+  avg_response_time_ms INTEGER,
+  current_streak INTEGER DEFAULT 0,  -- Consecutive wins
+  best_streak INTEGER DEFAULT 0,
+  rank INTEGER,  -- Current tournament rank
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  UNIQUE(tournament_id, student_id)
+);
+
+-- Tournament activity log (for tracking key events)
+CREATE TABLE IF NOT EXISTS tournament_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tournament_id INTEGER NOT NULL,
+  event_type TEXT NOT NULL,  -- 'started', 'round_opened', 'round_closed', 'match_completed', 'standings_updated', 'completed'
+  round_id INTEGER,
+  matchup_id INTEGER,
+  details TEXT,  -- JSON with event-specific data
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
+);
+
+-- Indexes for tournaments
+CREATE INDEX IF NOT EXISTS idx_tournaments_classroom ON tournaments(classroom_id);
+CREATE INDEX IF NOT EXISTS idx_tournaments_status ON tournaments(status);
+CREATE INDEX IF NOT EXISTS idx_tournament_rounds_tournament ON tournament_rounds(tournament_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_rounds_status ON tournament_rounds(status);
+CREATE INDEX IF NOT EXISTS idx_tournament_matchups_round ON tournament_matchups(round_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_matchups_student_a ON tournament_matchups(student_a_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_matchups_student_b ON tournament_matchups(student_b_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_matchups_status ON tournament_matchups(status);
+CREATE INDEX IF NOT EXISTS idx_tournament_standings_tournament ON tournament_standings(tournament_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_standings_student ON tournament_standings(student_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_standings_rank ON tournament_standings(rank);
+CREATE INDEX IF NOT EXISTS idx_tournament_events_tournament ON tournament_events(tournament_id);
