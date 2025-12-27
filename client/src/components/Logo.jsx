@@ -2,7 +2,7 @@
  * Mathathlon Logo Component
  *
  * Brand Strategy: Navy (Intellect/Math) → Gold (Achievement/Athlon)
- * The gradient visually communicates "Academic rigor transitioning into competitive performance"
+ * The two-color approach visually communicates "Academic rigor meets competitive performance"
  */
 
 export function Logo({ size = 'medium', variant = 'gradient', className = '' }) {
@@ -12,14 +12,19 @@ export function Logo({ size = 'medium', variant = 'gradient', className = '' }) 
     large: 'logo-large'
   }[size] || 'logo-medium';
 
-  const variantClass = {
-    gradient: 'logo-gradient',
-    navy: 'logo-navy'
-  }[variant] || 'logo-gradient';
+  if (variant === 'navy') {
+    return (
+      <span class={`logo ${sizeClass} logo-navy ${className}`}>
+        MathAthlon
+      </span>
+    );
+  }
 
+  // Gradient variant - two colors
   return (
-    <span class={`logo ${sizeClass} ${variantClass} ${className}`}>
-      MATHATHLON
+    <span class={`logo ${sizeClass} ${className}`}>
+      <span class="logo-math">Math</span>
+      <span class="logo-athlon">Athlon</span>
     </span>
   );
 }

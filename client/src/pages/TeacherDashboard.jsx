@@ -5,6 +5,7 @@ import { StudentAnalytics } from '../components/StudentAnalytics.jsx';
 import { ChallengeMode } from '../components/ChallengeMode.jsx';
 import { MerchandiseStore } from '../components/MerchandiseStore.jsx';
 import { ResourceCenter } from '../components/ResourceCenter.jsx';
+import { Logo } from '../components/Logo.jsx';
 import TournamentList from '../components/TournamentList.jsx';
 import TournamentCreate from '../components/TournamentCreate.jsx';
 import TournamentDetail from '../components/TournamentDetail.jsx';
@@ -142,7 +143,7 @@ export function TeacherDashboard({ teacher, onLogout }) {
       {/* Header */}
       <header class="header">
         <div class="header-content">
-          <span class="logo">MATHATHLON</span>
+          <Logo size="medium" />
           <div class="flex gap-2">
             {isPro && <span class="badge-pro">PRO</span>}
             <span class="text-light">Hi, {teacher.name}</span>
