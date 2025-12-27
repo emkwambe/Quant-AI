@@ -232,13 +232,6 @@ export function StudentGame({ student, onLeave }) {
 
   return (
     <div class="container" style={{ paddingTop: '1rem' }}>
-      {/* Feedback overlay */}
-      {feedback && (
-        <div class={`feedback ${feedback}`}>
-          {feedback === 'correct' ? '✓' : '✗'}
-        </div>
-      )}
-
       {/* Header */}
       <div class="flex flex-between mb-2">
         <span class="text-light">
@@ -266,7 +259,7 @@ export function StudentGame({ student, onLeave }) {
         {/* Feedback Overlay */}
         {feedback && (
           <div class={`feedback-overlay ${feedback}`}>
-            {feedback === 'correct' ? '✓' : '✗'}
+            <span class="feedback-icon">{feedback === 'correct' ? '✓' : '✗'}</span>
           </div>
         )}
 
