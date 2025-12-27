@@ -261,8 +261,15 @@ export function StudentGame({ student, onLeave }) {
         />
       </div>
 
-      {/* Question */}
-      <div class="card">
+      {/* Question Card */}
+      <div class={`card question-card ${feedback ? `feedback-${feedback}` : ''}`}>
+        {/* Feedback Overlay */}
+        {feedback && (
+          <div class={`feedback-overlay ${feedback}`}>
+            {feedback === 'correct' ? '✓' : '✗'}
+          </div>
+        )}
+
         <div class="question-display">
           {currentQuestion?.display}
         </div>
@@ -276,14 +283,16 @@ export function StudentGame({ student, onLeave }) {
           onKeyDown={handleKeyDown}
           placeholder="?"
           autoFocus
+          disabled={!!feedback}
         />
 
         <button
           class="btn btn-primary btn-block btn-large mt-2"
           onClick={submitAnswer}
-          disabled={!answer.trim()}
+          disabled={!answer.trim() || !!feedback}
+          style={{ fontSize: '1.25rem', padding: '1rem' }}
         >
-          Submit
+          Submit ↵
         </button>
       </div>
 
