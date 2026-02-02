@@ -15,7 +15,12 @@ import challengeRoutes from './routes/challenges.js';
 import merchandiseRoutes from './routes/merchandise.js';
 import resourceRoutes from './routes/resources.js';
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import tournamentRoutes from './routes/tournaments.js';
+=======
+import skillRoutes from './routes/skills.js';
+import skillSessionRoutes from './routes/skill-sessions.js';
+>>>>>>> Stashed changes
 =======
 import skillRoutes from './routes/skills.js';
 import skillSessionRoutes from './routes/skill-sessions.js';
@@ -55,7 +60,12 @@ app.use('/api/challenges', challengeRoutes);
 app.use('/api/merchandise', merchandiseRoutes);
 app.use('/api/resources', resourceRoutes);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 app.use('/api/tournaments', tournamentRoutes);
+=======
+app.use('/api/skills', skillRoutes);
+app.use('/api/skill-sessions', skillSessionRoutes);
+>>>>>>> Stashed changes
 =======
 app.use('/api/skills', skillRoutes);
 app.use('/api/skill-sessions', skillSessionRoutes);

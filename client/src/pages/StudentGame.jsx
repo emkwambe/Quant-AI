@@ -257,14 +257,20 @@ export function StudentGame({ student, onLeave }) {
   return (
     <div class="container" style={{ paddingTop: '1rem' }}>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       {/* Header */}
 =======
+=======
+>>>>>>> Stashed changes
       {feedback && (
         <div class={`feedback ${feedback}`}>
           {feedback === 'correct' ? '?' : '?'}
         </div>
       )}
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
       <div class="flex flex-between mb-2">
         <span class="text-light">
@@ -287,6 +293,7 @@ export function StudentGame({ student, onLeave }) {
       </div>
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       {/* Question Card */}
       <div class={`card question-card ${feedback ? `feedback-${feedback}` : ''}`}>
         {/* Feedback Overlay */}
@@ -297,6 +304,8 @@ export function StudentGame({ student, onLeave }) {
         )}
 
 =======
+=======
+>>>>>>> Stashed changes
       <div class="card">
 >>>>>>> Stashed changes
         <div class="question-display">
