@@ -7,7 +7,7 @@
 }
 
 :root {
-  /* Brand Colors: Navy (Intellect) → Gold (Achievement) */
+  /* Brand Colors: Navy (Intellect) ??? Gold (Achievement) */
   --brand-navy: #1e3a5f;
   --brand-navy-dark: #152a45;
   --brand-gold: #f59e0b;
@@ -497,6 +497,7 @@ h3 { font-size: 1.25rem; font-weight: 600; }
   font-size: 1.25rem;
 }
 
+<<<<<<< Updated upstream
 /* Two-color logo: Navy (Math) + Gold (Athlon) */
 .logo-math {
   color: var(--brand-navy);
@@ -504,6 +505,21 @@ h3 { font-size: 1.25rem; font-weight: 600; }
 
 .logo-athlon {
   color: var(--brand-gold);
+=======
+/* Two-color gradient: Navy (Math) ??? Gold (Athlon) */
+.logo-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--brand-navy) 0%,
+    var(--brand-navy) 35%,
+    var(--brand-teal) 50%,
+    var(--brand-gold) 75%,
+    var(--brand-gold) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+>>>>>>> Stashed changes
 }
 
 /* Solid navy version for headers */
@@ -563,3 +579,121 @@ h3 { font-size: 1.25rem; font-weight: 600; }
 .feature-icon-navy { background: rgba(30, 58, 95, 0.1); }
 .feature-icon-gold { background: rgba(245, 158, 11, 0.15); }
 .feature-icon-teal { background: rgba(13, 148, 136, 0.1); }
+
+/* ===== SKILLS PRACTICE ===== */
+.skill-card {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.skill-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.skill-card-power {
+  border-color: var(--brand-gold);
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.skill-card-power:hover {
+  border-color: var(--brand-gold);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.skill-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.skill-short {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  margin-top: 0.25rem;
+}
+
+.skill-level {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 0.5rem;
+}
+
+.skill-level-star {
+  color: var(--brand-gold);
+}
+
+.skill-level-star.empty {
+  color: var(--border);
+}
+
+
+
+
+/* Skills Practice Styles */
+.power-six-card {
+  border: 2px solid var(--brand-gold);
+  background: linear-gradient(135deg, rgba(245,158,11,0.05) 0%, rgba(245,158,11,0.1) 100%);
+}
+
+.power-six-title {
+  color: var(--brand-gold);
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.tier-title {
+  margin-bottom: 0.75rem;
+}
+
+.skill-desc {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  margin-top: 0.25rem;
+}
+
+.streak-badge {
+  background: var(--brand-gold);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.result-grade {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--brand-teal);
+  margin-bottom: 1.5rem;
+}
+
+.level-display {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+
+
+
+/* Feedback Animation */
+.feedback {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  font-weight: 700;
+  animation: pop 0.6s ease-out forwards;
+  pointer-events: none;
+  z-index: 100;
+}
+.feedback.correct { color: var(--success); }
+.feedback.correct::after { content: "CORRECT!"; }
+.feedback.wrong { color: var(--error); }
+.feedback.wrong::after { content: "WRONG"; }

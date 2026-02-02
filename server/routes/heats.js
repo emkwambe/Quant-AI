@@ -1,7 +1,11 @@
 import { Router } from 'express';
+import { createRequire } from 'module';
 import db from '../db/index.js';
 import { requireTeacher, requireStudent } from '../middleware/auth.js';
-import { generateQuestions } from '../questions/generator.js';
+
+// Use createRequire to import CommonJS module
+const require = createRequire(import.meta.url);
+const { generateQuestions } = require('../questions/generator.js');
 
 const router = Router();
 
@@ -36,7 +40,6 @@ router.post('/start', requireTeacher, (req, res) => {
   try {
     const { classroomId, difficultyLevel } = req.body;
 
-    // Verify classroom belongs to teacher
     const classroom = db.prepare(`
       SELECT id, grade_level FROM classrooms
       WHERE id = ? AND teacher_id = ?
@@ -46,14 +49,12 @@ router.post('/start', requireTeacher, (req, res) => {
       return res.status(404).json({ error: 'Classroom not found' });
     }
 
-    // End any active heats for this classroom
     db.prepare(`
       UPDATE heats
       SET status = 'ended', ended_at = datetime('now')
       WHERE classroom_id = ? AND status = 'active'
     `).run(classroomId);
 
-    // Create new heat
     const difficulty = difficultyLevel || 2;
     const result = db.prepare(`
       INSERT INTO heats (classroom_id, difficulty_level, status, started_at)
@@ -61,12 +62,9 @@ router.post('/start', requireTeacher, (req, res) => {
     `).run(classroomId, difficulty);
 
     const heatId = result.lastInsertRowid;
-
-    // Map classroom grade_level to grade band
     const gradeBands = { 1: 'K-2', 2: 'K-2', 3: '3-5', 4: '3-5', 5: '3-5', 6: '6-8', 7: '6-8', 8: '6-8' };
     const gradeLevel = gradeBands[classroom.grade_level] || '3-5';
 
-    // Generate questions for this heat
     const questions = generateQuestions(difficulty, 20, heatId, gradeLevel);
 
     res.json({
@@ -78,7 +76,6 @@ router.post('/start', requireTeacher, (req, res) => {
       questions: questions.map((q, i) => ({
         index: i,
         display: q.display,
-        // Don't send correct answer to client!
       })),
       startedAt: new Date().toISOString(),
       durationSeconds: 120
@@ -103,16 +100,13 @@ router.get('/active', requireStudent, (req, res) => {
     return res.json({ active: false });
   }
 
-  // Get classroom grade level
   const classroom = db.prepare('SELECT grade_level FROM classrooms WHERE id = ?')
     .get(req.student.classroom_id);
   const gradeBands = { 1: 'K-2', 2: 'K-2', 3: '3-5', 4: '3-5', 5: '3-5', 6: '6-8', 7: '6-8', 8: '6-8' };
   const gradeLevel = gradeBands[classroom?.grade_level] || '3-5';
 
-  // Generate same questions (deterministic based on heat ID)
   const questions = generateQuestions(heat.difficulty_level, 20, heat.id, gradeLevel);
 
-  // Get student's existing responses
   const responses = db.prepare(`
     SELECT question_index, is_correct, response_time_ms
     FROM responses
@@ -146,7 +140,6 @@ router.post('/answer', requireStudent, (req, res) => {
   try {
     const { heatId, questionIndex, answer, responseTimeMs } = req.body;
 
-    // Verify heat is active and belongs to student's classroom
     const heat = db.prepare(`
       SELECT h.* FROM heats h
       WHERE h.id = ? AND h.classroom_id = ? AND h.status = 'active'
@@ -156,7 +149,6 @@ router.post('/answer', requireStudent, (req, res) => {
       return res.status(400).json({ error: 'Heat not active' });
     }
 
-    // Check if already answered
     const existing = db.prepare(`
       SELECT id FROM responses
       WHERE heat_id = ? AND student_id = ? AND question_index = ?
@@ -166,13 +158,11 @@ router.post('/answer', requireStudent, (req, res) => {
       return res.status(400).json({ error: 'Already answered' });
     }
 
-    // Get classroom grade level
     const classroom = db.prepare('SELECT grade_level FROM classrooms WHERE id = ?')
       .get(req.student.classroom_id);
     const gradeBands = { 1: 'K-2', 2: 'K-2', 3: '3-5', 4: '3-5', 5: '3-5', 6: '6-8', 7: '6-8', 8: '6-8' };
     const gradeLevel = gradeBands[classroom?.grade_level] || '3-5';
 
-    // Regenerate question to get correct answer
     const questions = generateQuestions(heat.difficulty_level, 20, heatId, gradeLevel);
     const question = questions[questionIndex];
 
@@ -199,7 +189,6 @@ router.post('/answer', requireStudent, (req, res) => {
       responseTimeMs || 0
     );
 
-    // Get updated progress
     const progress = db.prepare(`
       SELECT
         COUNT(*) as answered,
@@ -242,7 +231,7 @@ router.post('/:id/end', requireTeacher, (req, res) => {
   res.json({ success: true });
 });
 
-// Get heat results (teacher or student after heat ends)
+// Get heat results
 router.get('/:id/results', (req, res) => {
   const heat = db.prepare('SELECT * FROM heats WHERE id = ?').get(req.params.id);
 
@@ -250,7 +239,6 @@ router.get('/:id/results', (req, res) => {
     return res.status(404).json({ error: 'Heat not found' });
   }
 
-  // Get all student results with country flag
   const results = db.prepare(`
     SELECT
       s.id as student_id,
@@ -270,7 +258,6 @@ router.get('/:id/results', (req, res) => {
     ORDER BY score DESC
   `).all(heat.id, heat.classroom_id);
 
-  // Get class stats
   const stats = db.prepare(`
     SELECT
       COUNT(DISTINCT student_id) as participants,

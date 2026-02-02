@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { fileURLToPath } from 'url';
@@ -14,7 +14,12 @@ import subscriptionRoutes from './routes/subscriptions.js';
 import challengeRoutes from './routes/challenges.js';
 import merchandiseRoutes from './routes/merchandise.js';
 import resourceRoutes from './routes/resources.js';
+<<<<<<< Updated upstream
 import tournamentRoutes from './routes/tournaments.js';
+=======
+import skillRoutes from './routes/skills.js';
+import skillSessionRoutes from './routes/skill-sessions.js';
+>>>>>>> Stashed changes
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -49,7 +54,12 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/challenges', challengeRoutes);
 app.use('/api/merchandise', merchandiseRoutes);
 app.use('/api/resources', resourceRoutes);
+<<<<<<< Updated upstream
 app.use('/api/tournaments', tournamentRoutes);
+=======
+app.use('/api/skills', skillRoutes);
+app.use('/api/skill-sessions', skillSessionRoutes);
+>>>>>>> Stashed changes
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -65,5 +75,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.listen(PORT, () => {
-  console.log(`🏃 Mathathlon server running on http://localhost:${PORT}`);
+  console.log(`ðŸƒ Mathathlon server running on http://localhost:${PORT}`);
 });
+
+

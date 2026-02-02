@@ -2,9 +2,10 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import { heats } from '../api/index.js';
 import { getFlag } from '../utils/countries.js';
 import { Logo } from '../components/Logo.jsx';
+import { SkillsPractice } from '../components/SkillsPractice.jsx';
 
 export function StudentGame({ student, onLeave }) {
-  const [gameState, setGameState] = useState('waiting'); // 'waiting', 'playing', 'results'
+  const [gameState, setGameState] = useState('waiting'); // 'waiting', 'playing', 'results', 'skills'
   const [heat, setHeat] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -19,10 +20,11 @@ export function StudentGame({ student, onLeave }) {
 
   // Poll for active heat
   useEffect(() => {
+    if (gameState === 'skills') return; // Don't poll during skills practice
     checkForHeat();
     const interval = setInterval(checkForHeat, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [gameState]);
 
   // Countdown timer
   useEffect(() => {
@@ -46,11 +48,9 @@ export function StudentGame({ student, onLeave }) {
         setQuestions(data.questions);
         setProgress(data.progress);
 
-        // Find first unanswered question
         const firstUnanswered = data.questions.findIndex(q => !q.answered);
         setCurrentIndex(firstUnanswered >= 0 ? firstUnanswered : 0);
 
-        // Calculate remaining time
         const startTime = new Date(data.heat.startedAt).getTime();
         const elapsed = Math.floor((Date.now() - startTime) / 1000);
         const remaining = Math.max(0, data.heat.durationSeconds - elapsed);
@@ -93,11 +93,9 @@ export function StudentGame({ student, onLeave }) {
         responseTimeMs
       });
 
-      // Show feedback
       setFeedback(result.correct ? 'correct' : 'wrong');
       setProgress(result.progress);
 
-      // Clear feedback and move to next question
       setTimeout(() => {
         setFeedback(null);
         setAnswer('');
@@ -107,7 +105,6 @@ export function StudentGame({ student, onLeave }) {
           questionStartTime.current = Date.now();
           inputRef.current?.focus();
         } else {
-          // Completed all questions
           endHeat();
         }
       }, 500);
@@ -120,6 +117,16 @@ export function StudentGame({ student, onLeave }) {
     if (e.key === 'Enter') {
       submitAnswer();
     }
+  }
+
+  // Skills Practice view
+  if (gameState === 'skills') {
+    return (
+      <SkillsPractice 
+        student={student} 
+        onBack={() => setGameState('waiting')} 
+      />
+    );
   }
 
   // Waiting screen
@@ -138,7 +145,16 @@ export function StudentGame({ student, onLeave }) {
             <p class="text-light mt-2">Get ready to race!</p>
           </div>
 
-          <button class="btn btn-outline mt-4" onClick={onLeave}>
+          {/* NEW: Skills Practice Button */}
+          <button 
+            class="btn btn-primary btn-large mt-4"
+            onClick={() => setGameState('skills')}
+            style={{ background: 'var(--brand-teal)' }}
+          >
+            Practice Skills While Waiting
+          </button>
+
+          <button class="btn btn-outline mt-2" onClick={onLeave}>
             Leave Class
           </button>
         </div>
@@ -158,7 +174,7 @@ export function StudentGame({ student, onLeave }) {
           {myRank && (
             <div class="mb-3">
               <div style={{ fontSize: '4rem' }}>
-                {myRank.rank === 1 ? '🥇' : myRank.rank === 2 ? '🥈' : myRank.rank === 3 ? '🥉' : `#${myRank.rank}`}
+                {myRank.rank === 1 ? '??' : myRank.rank === 2 ? '??' : myRank.rank === 3 ? '??' : `#${myRank.rank}`}
               </div>
               <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
                 {myRank.correct} / {myRank.total} correct
@@ -177,7 +193,6 @@ export function StudentGame({ student, onLeave }) {
             </div>
           </div>
 
-          {/* Top 3 podium */}
           {results?.leaderboard.slice(0, 3).length > 0 && (
             <div class="podium">
               {results.leaderboard[1] && (
@@ -210,18 +225,27 @@ export function StudentGame({ student, onLeave }) {
             </div>
           )}
 
-          <button
-            class="btn btn-primary btn-large mt-3"
-            onClick={() => {
-              setGameState('waiting');
-              setHeat(null);
-              setResults(null);
-              setCurrentIndex(0);
-              setProgress({ answered: 0, correct: 0 });
-            }}
-          >
-            Ready for Next Heat
-          </button>
+          <div class="grid grid-2 gap-2 mt-3">
+            <button
+              class="btn btn-primary"
+              onClick={() => {
+                setGameState('waiting');
+                setHeat(null);
+                setResults(null);
+                setCurrentIndex(0);
+                setProgress({ answered: 0, correct: 0 });
+              }}
+            >
+              Ready for Next Heat
+            </button>
+            <button
+              class="btn btn-outline"
+              onClick={() => setGameState('skills')}
+              style={{ borderColor: 'var(--brand-teal)', color: 'var(--brand-teal)' }}
+            >
+              Practice Skills
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -232,7 +256,16 @@ export function StudentGame({ student, onLeave }) {
 
   return (
     <div class="container" style={{ paddingTop: '1rem' }}>
+<<<<<<< Updated upstream
       {/* Header */}
+=======
+      {feedback && (
+        <div class={`feedback ${feedback}`}>
+          {feedback === 'correct' ? '?' : '?'}
+        </div>
+      )}
+
+>>>>>>> Stashed changes
       <div class="flex flex-between mb-2">
         <span class="text-light">
           Question {currentIndex + 1} / {questions.length}
@@ -246,7 +279,6 @@ export function StudentGame({ student, onLeave }) {
         </span>
       </div>
 
-      {/* Progress bar */}
       <div class="progress-bar mb-3">
         <div
           class="progress-fill"
@@ -254,6 +286,7 @@ export function StudentGame({ student, onLeave }) {
         />
       </div>
 
+<<<<<<< Updated upstream
       {/* Question Card */}
       <div class={`card question-card ${feedback ? `feedback-${feedback}` : ''}`}>
         {/* Feedback Overlay */}
@@ -263,6 +296,9 @@ export function StudentGame({ student, onLeave }) {
           </div>
         )}
 
+=======
+      <div class="card">
+>>>>>>> Stashed changes
         <div class="question-display">
           {currentQuestion?.display}
         </div>
@@ -289,7 +325,6 @@ export function StudentGame({ student, onLeave }) {
         </button>
       </div>
 
-      {/* Score */}
       <div class="stats mt-3">
         <div>
           <div class="stat-value text-success">{progress.correct}</div>
@@ -303,3 +338,4 @@ export function StudentGame({ student, onLeave }) {
     </div>
   );
 }
+
